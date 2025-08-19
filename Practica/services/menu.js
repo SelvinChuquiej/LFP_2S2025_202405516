@@ -1,8 +1,10 @@
 import readline from 'readline';
+import { cargarArchivo } from './fileService.js';
 
 export function iniciarMenu() {
 
     let llamadas = [];
+    let archivoActual = '';
 
     const rl = readline.createInterface({
         input: process.stdin,
@@ -24,8 +26,8 @@ export function iniciarMenu() {
     function procesarOpcion(opcion) {
         switch (opcion) {
             case '1':
-                cargarRegistroLlamadas();
-                break;
+                cargarRegistros();
+                return;
             case '7':
                 console.log('Saliendo del programa...');
                 rl.close();
@@ -35,5 +37,21 @@ export function iniciarMenu() {
         }
         mostrarMenu();
     }
+
+    function cargarRegistros() {
+        rl.question('Ingresa el nombre del archivo a cargar guardado en la carpeta data: ', (nombreArchivo) => {
+            const rutaArchivo = `./data/${nombreArchivo}.csv`;
+            llamadas = cargarArchivo(rutaArchivo);
+            if (llamadas && llamadas.length > 0) {
+                console.log('Archivo cargado correctamente.');
+                console.log(llamadas);
+            } else {
+                console.log('o se pudo cargar el archivo o está vacío.');
+            }
+            mostrarMenu();
+        });
+    }
+
+
     mostrarMenu();
 }
