@@ -3,6 +3,7 @@ import fs from 'fs';
 import { cargarArchivo } from './fileService.js';
 import { generarHistorialLlamadas } from '../reportes/historialLlamadas.js';
 import { generarListadoOperadores } from '../reportes/listadoOperadores.js';
+import { generarListadoClientes } from '../reportes/listadoCliente.js';
 
 export function iniciarMenu() {
 
@@ -47,7 +48,12 @@ export function iniciarMenu() {
                 generarListadoOperadores(llamadas);
                 mostrarMenu();
                 return;
-                
+
+            case '4':
+                generarListadoClientes(llamadas);
+                mostrarMenu();
+                return;
+
             case '7':
                 console.log('Saliendo del programa...');
                 rl.close();
@@ -60,7 +66,7 @@ export function iniciarMenu() {
     }
 
     function cargarRegistros() {
-        rl.question('\nIngresa el nombre del archivo a cargar guardado en la carpeta data: ', (nombreArchivo) => {
+        rl.question('\nIngresa el nombre del archivo (guardado en la carpeta data): ', (nombreArchivo) => {
             const rutaArchivo = `./data/${nombreArchivo}.csv`;
             llamadas = cargarArchivo(rutaArchivo);
             if (llamadas && llamadas.length > 0) {

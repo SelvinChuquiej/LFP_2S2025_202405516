@@ -1,13 +1,13 @@
 import fs from 'fs';
 
-export function generarListadoOperadores(operadores) {
+export function generarListadoClientes(clientes) {
     let html = `
         <!DOCTYPE html> 
         <html lang="es">
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Listado de Operadores</title>
+            <title>Listado de Clientes</title>
             <style>
                 body { font-family: Arial, sans-serif; text-align: center; }
                 table { width: 45%; border-collapse: collapse; margin-left: auto; margin-right: auto; }
@@ -16,22 +16,22 @@ export function generarListadoOperadores(operadores) {
             </style>
         </head>
         <body>
-            <h1>Listado de Operadores</h1>
+            <h1>Listado de Clientes</h1>
             <table>
                 <thead>
                     <tr>
-                        <th>Id Operador</th>
-                        <th>Nombre Operador</th>
+                        <th>Id Cliente</th>
+                        <th>Nombre Cliente</th>
                     </tr>
                 </thead>
                 <tbody>`;
 
 
-    operadores.forEach(op => {
+    clientes.forEach(cl => {
         html += `
                     <tr>
-                        <td>${op.id_operador}</td>
-                        <td>${op.nombre_operador}</td>
+                        <td>${cl.id_cliente}</td>
+                        <td>${cl.nombre_cliente}</td>
                     </tr>`;
     });
 
@@ -41,10 +41,10 @@ export function generarListadoOperadores(operadores) {
         </body>
         </html>`;
 
-    if (fs.existsSync('./reportesHTML/listadoOperadores.html')) {
-        fs.unlinkSync('./reportesHTML/listadoOperadores.html');
+    if (fs.existsSync('./reportesHTML/listadoClientes.html')) {
+        fs.unlinkSync('./reportesHTML/listadoClientes.html');
     }
 
-    fs.writeFileSync('./reportesHTML/listadoOperadores.html', html, 'utf8');
-    console.log('Reporte generado: ./reportesHTML/listadoOperadores.html');
+    fs.writeFileSync('./reportesHTML/listadoClientes.html', html, 'utf8');
+    console.log('Reporte generado: ./reportesHTML/listadoClientes.html');
 }
