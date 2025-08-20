@@ -7,7 +7,7 @@ export function cargarArchivo(filePath) {
         const line = data.split('\n').filter(line => line.trim() !== '');
         return line.map(parseLine)
     } catch (error) {
-        console.error(error);
+        console.log(`Error al cargar el archivo: ${error.message}`);
     }
 }
 

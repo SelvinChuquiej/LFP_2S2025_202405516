@@ -28,7 +28,7 @@ export function iniciarMenu() {
         console.log('4. Exportar listado de clientes');
         console.log('5. Exportar Rendimiento de Operadores');
         console.log('6. Mostrar porcentaje de clasficación de llamadas');
-        console.log('7. Mostra cantidad de llamaas por calificación');
+        console.log('7. Mostrar cantidad de llamadas por calificación');
         console.log('8. Salir');
         console.log("" + "=".repeat(50))
         rl.question('Seleccione una opción: ', procesarOpcion);
@@ -42,22 +42,32 @@ export function iniciarMenu() {
                 return;
 
             case '2':
+                if (archivoNoCargado()) return;
                 generarHistorialLlamadas(llamadas);
                 mostrarMenu();
                 return;
 
             case '3':
+                if (archivoNoCargado()) return;
                 generarListadoOperadores(llamadas);
                 mostrarMenu();
                 return;
 
             case '4':
+                if (archivoNoCargado()) return;
                 generarListadoClientes(llamadas);
                 mostrarMenu();
                 return;
 
             case '5':
+                if (archivoNoCargado()) return;
                 generarRendimientoOperadores(llamadas);
+                mostrarMenu();
+                return;
+
+            case '6':
+                if (archivoNoCargado()) return;
+                porcentajeClasificacion();
                 mostrarMenu();
                 return;
 
@@ -80,12 +90,49 @@ export function iniciarMenu() {
                 console.log('Archivo cargado correctamente.');
                 console.log(llamadas);
             } else {
-                console.log('o se pudo cargar el archivo o está vacío.');
+                console.log('No se pudo cargar el archivo o está vacío.');
             }
             mostrarMenu();
         });
     }
 
+    function porcentajeClasificacion() {
+        if (!llamadas || llamadas.length === 0) {
+            console.log('No hay registros de llamadas cargados.');
+            return;
+        }
+
+        let buenas = 0, medias = 0, malas = 0;
+
+        llamadas.forEach(lla => {
+            if (lla.no_estrellas >= 4) {
+                buenas++;
+            } else if (lla.no_estrellas >= 2) {
+                medias++;
+            } else {
+                malas++;
+            }
+        });
+
+        const total = llamadas.length;
+        const porcentajeBuenas = ((buenas / total) * 100).toFixed(2);
+        const porcentajeMedias = ((medias / total) * 100).toFixed(2);
+        const porcentajeMalas = ((malas / total) * 100).toFixed(2);
+
+        console.log("\n--- Porcentaje de Clasificación de Llamadas ---");
+        console.log(`Buenas (4-5 estrellas): ${porcentajeBuenas}% (${buenas} llamadas)`);
+        console.log(`Medias (2-3 estrellas): ${porcentajeMedias}% (${medias} llamadas)`);
+        console.log(`Malas (0-1 estrellas): ${porcentajeMalas}% (${malas} llamadas)`);
+    }
+
+    function archivoNoCargado(params) {
+        if (!llamadas || llamadas.length === 0) {
+            console.log('No hay registros de llamadas cargados.');
+            mostrarMenu();
+            return true;
+        }
+        return false;
+    }
 
     mostrarMenu();
 }
