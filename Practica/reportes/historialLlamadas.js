@@ -29,14 +29,14 @@ export function generarHistorialLlamadas(llamadas) {
             <tbody>
     `;
 
-    llamadas.forEach(ll => {
+    llamadas.forEach(lla => {
         html += `
                     <tr>
-                        <td>${ll.id_operador}</td>
-                        <td>${ll.nombre_operador}</td>
-                        <td>${ll.no_estrellas}</td>
-                        <td>${ll.id_cliente}</td>
-                        <td>${ll.nombre_cliente}</td>
+                        <td>${lla.id_operador}</td>
+                        <td>${lla.nombre_operador}</td>
+                        <td>${lla.no_estrellas}</td>
+                        <td>${lla.id_cliente}</td>
+                        <td>${lla.nombre_cliente}</td>
                     </tr>`;
     });
 

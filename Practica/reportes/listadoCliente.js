@@ -1,8 +1,21 @@
 import fs from 'fs';
 
-export function generarListadoClientes(clientes) {
+export function generarListadoClientes(llamadas) {
 
-    const cliUnicos = [...new Map(clientes.map(cl => [cl.id_cliente, cl])).values()];
+    const clientesMap = {};
+
+    llamadas.forEach(lla => {
+        const idCl = lla.id_cliente;
+        const nombreCl = lla.nombre_cliente;
+        if (!clientesMap[idCl]) {
+            clientesMap[idCl] = {
+                id_cliente: idCl,
+                nombre_cliente: nombreCl
+            };
+        }
+    });
+
+    const clientes = Object.values(clientesMap);
 
     let html = `
         <!DOCTYPE html> 
@@ -30,7 +43,7 @@ export function generarListadoClientes(clientes) {
                 <tbody>`;
 
 
-    cliUnicos.forEach(cl => {
+    clientes.forEach(cl => {
         html += `
                     <tr>
                         <td>${cl.id_cliente}</td>

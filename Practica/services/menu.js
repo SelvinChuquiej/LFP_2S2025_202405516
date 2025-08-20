@@ -4,6 +4,7 @@ import { cargarArchivo } from './fileService.js';
 import { generarHistorialLlamadas } from '../reportes/historialLlamadas.js';
 import { generarListadoOperadores } from '../reportes/listadoOperadores.js';
 import { generarListadoClientes } from '../reportes/listadoCliente.js';
+import { generarRendimientoOperadores } from '../reportes/rendimientoOperador.js';
 
 export function iniciarMenu() {
 
@@ -52,6 +53,11 @@ export function iniciarMenu() {
 
             case '4':
                 generarListadoClientes(llamadas);
+                mostrarMenu();
+                return;
+
+            case '5':
+                generarRendimientoOperadores(llamadas);
                 mostrarMenu();
                 return;
 

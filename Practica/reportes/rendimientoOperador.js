@@ -1,21 +1,31 @@
 import fs from 'fs';
 
-export function generarListadoOperadores(llamadas) {
+export function generarRendimientoOperadores(llamadas) {
 
     const operadoresMap = {};
 
-    llamadas.forEach(lla => {
-        const idOp = lla.id_operador;
-        const nombreOp = lla.nombre_operador;
+    llamadas.forEach(ll => {
+        const idOp = ll.id_operador;
+        const nombreOp = ll.nombre_operador;
+
         if (!operadoresMap[idOp]) {
             operadoresMap[idOp] = {
                 id_operador: idOp,
-                nombre_operador: nombreOp
+                nombre_operador: nombreOp,
+                totalLlamadas: 0
             };
+
         }
+
+        operadoresMap[idOp].totalLlamadas++;
     });
 
     const operadores = Object.values(operadoresMap);
+    const totalLlamadas = llamadas.length;
+
+    operadores.forEach(op => {
+        op.porcentaje_atencion = ((op.totalLlamadas / totalLlamadas) * 100).toFixed(2) + '%';
+    });
 
     let html = `
         <!DOCTYPE html> 
@@ -23,7 +33,7 @@ export function generarListadoOperadores(llamadas) {
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Listado de Operadores</title>
+            <title>Rendimiento de Operadores</title>
             <style>
                 body { font-family: Arial, sans-serif; text-align: center; }
                 table { width: 45%; border-collapse: collapse; margin-left: auto; margin-right: auto; }
@@ -32,12 +42,14 @@ export function generarListadoOperadores(llamadas) {
             </style>
         </head>
         <body>
-            <h1>Listado de Operadores</h1>
+            <h1>Rendimiento de Operadores</h1>
             <table>
                 <thead>
                     <tr>
                         <th>Id Operador</th>
                         <th>Nombre Operador</th>
+                        <th>Total Llamadas</th>
+                        <th>Porcentaje de atencion</th>
                     </tr>
                 </thead>
                 <tbody>`;
@@ -48,6 +60,8 @@ export function generarListadoOperadores(llamadas) {
                     <tr>
                         <td>${op.id_operador}</td>
                         <td>${op.nombre_operador}</td>
+                        <td>${op.totalLlamadas}</td>
+                        <td>${op.porcentaje_atencion}</td>
                     </tr>`;
     });
 
@@ -57,10 +71,10 @@ export function generarListadoOperadores(llamadas) {
         </body>
         </html>`;
 
-    if (fs.existsSync('./reportesHTML/listadoOperadores.html')) {
-        fs.unlinkSync('./reportesHTML/listadoOperadores.html');
+    if (fs.existsSync('./reportesHTML/rendimientoOperadores.html')) {
+        fs.unlinkSync('./reportesHTML/rendimientoOperadores.html');
     }
 
-    fs.writeFileSync('./reportesHTML/listadoOperadores.html', html, 'utf8');
-    console.log('Reporte generado: ./reportesHTML/listadoOperadores.html');
+    fs.writeFileSync('./reportesHTML/rendimientoOperadores.html', html, 'utf8');
+    console.log('Reporte generado: ./reportesHTML/rendimientoOperadores.html');
 }
