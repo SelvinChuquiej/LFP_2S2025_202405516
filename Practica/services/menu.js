@@ -1,10 +1,16 @@
 import readline from 'readline';
+import fs from 'fs';
 import { cargarArchivo } from './fileService.js';
+import { generarHistorialLlamadas } from '../reportes/historialLlamadas.js';
+import { generarListadoOperadores } from '../reportes/listadoOperadores.js';
 
 export function iniciarMenu() {
+    
+    if (!fs.existsSync('./reportesHTML')) {
+        fs.mkdirSync('./reportesHTML');
+    }
 
     let llamadas = [];
-    let archivoActual = '';
 
     const rl = readline.createInterface({
         input: process.stdin,
@@ -12,7 +18,8 @@ export function iniciarMenu() {
     });
 
     function mostrarMenu() {
-        console.log('\n--- Menú de Registro de Llamadas ---');
+        console.log("\n" + "=".repeat(50))
+        console.log('--- Menú de Registro de Llamadas ---');
         console.log('1. Cargar registro de llamadas');
         console.log('2. Exportar historial de llamadas');
         console.log('3. Exportar listado de llamadas');
@@ -20,7 +27,9 @@ export function iniciarMenu() {
         console.log('5. Mostrar porcentaje de clasficación de llamadas');
         console.log('6. Mostra cantidad de llamaas por calificación');
         console.log('7. Salir');
+        console.log("" + "=".repeat(50))
         rl.question('Seleccione una opción: ', procesarOpcion);
+
     }
 
     function procesarOpcion(opcion) {
@@ -28,10 +37,17 @@ export function iniciarMenu() {
             case '1':
                 cargarRegistros();
                 return;
+
+            case '2':
+                generarHistorialLlamadas(llamadas);
+                mostrarMenu();
+                return;
+
             case '7':
                 console.log('Saliendo del programa...');
                 rl.close();
                 return;
+
             default:
                 console.log('Opción no válida. Intente de nuevo.');
         }
@@ -39,7 +55,7 @@ export function iniciarMenu() {
     }
 
     function cargarRegistros() {
-        rl.question('Ingresa el nombre del archivo a cargar guardado en la carpeta data: ', (nombreArchivo) => {
+        rl.question('\nIngresa el nombre del archivo a cargar guardado en la carpeta data: ', (nombreArchivo) => {
             const rutaArchivo = `./data/${nombreArchivo}.csv`;
             llamadas = cargarArchivo(rutaArchivo);
             if (llamadas && llamadas.length > 0) {
@@ -51,7 +67,6 @@ export function iniciarMenu() {
             mostrarMenu();
         });
     }
-
 
     mostrarMenu();
 }
