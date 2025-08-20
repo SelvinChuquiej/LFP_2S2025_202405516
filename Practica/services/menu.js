@@ -5,7 +5,7 @@ import { generarHistorialLlamadas } from '../reportes/historialLlamadas.js';
 import { generarListadoOperadores } from '../reportes/listadoOperadores.js';
 
 export function iniciarMenu() {
-    
+
     if (!fs.existsSync('./reportesHTML')) {
         fs.mkdirSync('./reportesHTML');
     }
@@ -43,6 +43,11 @@ export function iniciarMenu() {
                 mostrarMenu();
                 return;
 
+            case '3':
+                generarListadoOperadores(llamadas);
+                mostrarMenu();
+                return;
+                
             case '7':
                 console.log('Saliendo del programa...');
                 rl.close();
@@ -67,6 +72,7 @@ export function iniciarMenu() {
             mostrarMenu();
         });
     }
+
 
     mostrarMenu();
 }
