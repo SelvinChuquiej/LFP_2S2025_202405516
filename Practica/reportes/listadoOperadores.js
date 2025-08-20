@@ -1,6 +1,9 @@
 import fs from 'fs';
 
 export function generarListadoOperadores(operadores) {
+
+    const opUnicos = [...new Map(operadores.map(op => [op.id_operador, op])).values()];
+
     let html = `
         <!DOCTYPE html> 
         <html lang="es">
@@ -27,11 +30,11 @@ export function generarListadoOperadores(operadores) {
                 <tbody>`;
 
 
-    operadores.forEach(op => {
+    opUnicos.forEach(opU => {
         html += `
                     <tr>
-                        <td>${op.id_operador}</td>
-                        <td>${op.nombre_operador}</td>
+                        <td>${opU.id_operador}</td>
+                        <td>${opU.nombre_operador}</td>
                     </tr>`;
     });
 

@@ -1,6 +1,9 @@
 import fs from 'fs';
 
 export function generarListadoClientes(clientes) {
+
+    const cliUnicos = [...new Map(clientes.map(cl => [cl.id_cliente, cl])).values()];
+
     let html = `
         <!DOCTYPE html> 
         <html lang="es">
@@ -27,7 +30,7 @@ export function generarListadoClientes(clientes) {
                 <tbody>`;
 
 
-    clientes.forEach(cl => {
+    cliUnicos.forEach(cl => {
         html += `
                     <tr>
                         <td>${cl.id_cliente}</td>

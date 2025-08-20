@@ -23,11 +23,12 @@ export function iniciarMenu() {
         console.log('--- Menú de Registro de Llamadas ---');
         console.log('1. Cargar registro de llamadas');
         console.log('2. Exportar historial de llamadas');
-        console.log('3. Exportar listado de llamadas');
+        console.log('3. Exportar listado de operadores');
         console.log('4. Exportar listado de clientes');
-        console.log('5. Mostrar porcentaje de clasficación de llamadas');
-        console.log('6. Mostra cantidad de llamaas por calificación');
-        console.log('7. Salir');
+        console.log('5. Exportar Rendimiento de Operadores');
+        console.log('6. Mostrar porcentaje de clasficación de llamadas');
+        console.log('7. Mostra cantidad de llamaas por calificación');
+        console.log('8. Salir');
         console.log("" + "=".repeat(50))
         rl.question('Seleccione una opción: ', procesarOpcion);
 
@@ -54,7 +55,7 @@ export function iniciarMenu() {
                 mostrarMenu();
                 return;
 
-            case '7':
+            case '8':
                 console.log('Saliendo del programa...');
                 rl.close();
                 return;
