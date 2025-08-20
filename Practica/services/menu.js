@@ -71,6 +71,12 @@ export function iniciarMenu() {
                 mostrarMenu();
                 return;
 
+            case '7':
+                if (archivoNoCargado()) return;
+                llamadasClasificacion();
+                mostrarMenu();
+                return;
+
             case '8':
                 console.log('Saliendo del programa...');
                 rl.close();
@@ -125,6 +131,28 @@ export function iniciarMenu() {
         console.log(`Malas (0-1 estrellas): ${porcentajeMalas}% (${malas} llamadas)`);
     }
 
+    function llamadasClasificacion() {
+        const contador = {
+            0: 0,
+            1: 0,
+            2: 0,
+            3: 0,
+            4: 0,
+            5: 0
+        };
+
+        llamadas.forEach(lla => {
+            if (lla.no_estrellas >= 0 && lla.no_estrellas <= 5) {
+                contador[lla.no_estrellas]++;
+            }
+        });
+
+        console.log("\n--- Cantidad de Llamadas por Calificación ---");
+        for (let i = 1; i <= 5; i++) {
+            console.log(`${i} estrella${i > 1 ? 's' : ''}: ${contador[i]} llamadas`);
+        }
+    }
+    
     function archivoNoCargado(params) {
         if (!llamadas || llamadas.length === 0) {
             console.log('No hay registros de llamadas cargados.');
