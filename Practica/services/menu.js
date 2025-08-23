@@ -91,10 +91,11 @@ export function iniciarMenu() {
     function cargarRegistros() {
         rl.question('\nIngresa el nombre del archivo (guardado en la carpeta data): ', (nombreArchivo) => {
             const rutaArchivo = `./data/${nombreArchivo}.csv`;
-            llamadas = cargarArchivo(rutaArchivo);
-            if (llamadas && llamadas.length > 0) {
+            const nuevasLlamadas = cargarArchivo(rutaArchivo);
+            if (nuevasLlamadas && nuevasLlamadas.length > 0) {
+                llamadas = nuevasLlamadas 
                 console.log('Archivo cargado correctamente.');
-                console.log(llamadas);
+                console.log(llamadas.length + ' registros de llamadas cargados.');
             } else {
                 console.log('No se pudo cargar el archivo o está vacío.');
             }
@@ -153,7 +154,7 @@ export function iniciarMenu() {
         }
     }
     
-    function archivoNoCargado(params) {
+    function archivoNoCargado() {
         if (!llamadas || llamadas.length === 0) {
             console.log('No hay registros de llamadas cargados.');
             mostrarMenu();
