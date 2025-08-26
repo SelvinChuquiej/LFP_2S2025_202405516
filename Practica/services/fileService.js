@@ -5,7 +5,7 @@ export function cargarArchivo(filePath) {
     try {
         const data = fs.readFileSync(filePath, 'utf8');
         const line = data.split('\n').filter(line => line.trim() !== '');
-        return line.map(parseLine)
+        return line.slice(1).map(parseLine)
     } catch (error) {
         console.log(`Error al cargar el archivo: ${error.message}`);
     }

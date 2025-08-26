@@ -13,6 +13,7 @@ export function iniciarMenu() {
     }
 
     let llamadas = [];
+    let nombreArchivoActual = '';
 
     const rl = readline.createInterface({
         input: process.stdin,
@@ -43,25 +44,25 @@ export function iniciarMenu() {
 
             case '2':
                 if (archivoNoCargado()) return;
-                generarHistorialLlamadas(llamadas);
+                generarHistorialLlamadas(llamadas, nombreArchivoActual);
                 mostrarMenu();
                 return;
 
             case '3':
                 if (archivoNoCargado()) return;
-                generarListadoOperadores(llamadas);
+                generarListadoOperadores(llamadas, nombreArchivoActual);
                 mostrarMenu();
                 return;
 
             case '4':
                 if (archivoNoCargado()) return;
-                generarListadoClientes(llamadas);
+                generarListadoClientes(llamadas, nombreArchivoActual);
                 mostrarMenu();
                 return;
 
             case '5':
                 if (archivoNoCargado()) return;
-                generarRendimientoOperadores(llamadas);
+                generarRendimientoOperadores(llamadas, nombreArchivoActual);
                 mostrarMenu();
                 return;
 
@@ -94,6 +95,7 @@ export function iniciarMenu() {
             const nuevasLlamadas = cargarArchivo(rutaArchivo);
             if (nuevasLlamadas && nuevasLlamadas.length > 0) {
                 llamadas = nuevasLlamadas 
+                nombreArchivoActual = nombreArchivo
                 console.log('Archivo cargado correctamente.');
                 console.log(llamadas.length + ' registros de llamadas cargados.');
             } else {

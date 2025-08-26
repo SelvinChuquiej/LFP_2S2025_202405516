@@ -1,6 +1,6 @@
 import fs from 'fs';
 
-export function generarListadoClientes(llamadas) {
+export function generarListadoClientes(llamadas, nombreArchivo) {
 
     const clientesMap = {};
 
@@ -57,10 +57,13 @@ export function generarListadoClientes(llamadas) {
         </body>
         </html>`;
 
-    if (fs.existsSync('./reportesHTML/listadoClientes.html')) {
-        fs.unlinkSync('./reportesHTML/listadoClientes.html');
+    
+    const rutaArchivo = `./reportesHTML/listadoClientes.${nombreArchivo}.html`
+    
+    if (fs.existsSync(rutaArchivo)) {
+        fs.unlinkSync(rutaArchivo);
     }
 
-    fs.writeFileSync('./reportesHTML/listadoClientes.html', html, 'utf8');
-    console.log('Reporte generado: ./reportesHTML/listadoClientes.html');
+    fs.writeFileSync(rutaArchivo, html, 'utf8');
+    console.log(`Reporte generado: ${rutaArchivo}`);
 }

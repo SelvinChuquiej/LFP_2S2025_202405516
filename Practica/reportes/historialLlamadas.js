@@ -1,6 +1,6 @@
 import fs from 'fs';
 
-export function generarHistorialLlamadas(llamadas) {
+export function generarHistorialLlamadas(llamadas, nombreArchivo) {
     let html = `
         <!DOCTYPE html> 
         <html lang="es">
@@ -46,10 +46,12 @@ export function generarHistorialLlamadas(llamadas) {
         </body>
         </html>`;
 
-    if (fs.existsSync('./reportesHTML/historialLlamadas.html')) {
-        fs.unlinkSync('./reportesHTML/historialLlamadas.html');
+
+    const rutaArchivo = `./reportesHTML/historialLlamadas.${nombreArchivo}.html`
+    if (fs.existsSync(rutaArchivo)) {
+        fs.unlinkSync(rutaArchivo);
     }
 
-    fs.writeFileSync('./reportesHTML/historialLlamadas.html', html, 'utf8');
-    console.log('Reporte generado: ./reportesHTML/historialLlamadas.html');
+    fs.writeFileSync(rutaArchivo, html, 'utf8');
+    console.log(`Reporte generado: ${rutaArchivo}`);
 }

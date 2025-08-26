@@ -1,6 +1,6 @@
 import fs from 'fs';
 
-export function generarListadoOperadores(llamadas) {
+export function generarListadoOperadores(llamadas, nombreArchivo) {
 
     const operadoresMap = {};
 
@@ -57,10 +57,12 @@ export function generarListadoOperadores(llamadas) {
         </body>
         </html>`;
 
-    if (fs.existsSync('./reportesHTML/listadoOperadores.html')) {
-        fs.unlinkSync('./reportesHTML/listadoOperadores.html');
+    const rutaArchivo = `./reportesHTML/listadoOperadores.${nombreArchivo}.html`;
+    
+    if (fs.existsSync(rutaArchivo)) {
+        fs.unlinkSync(rutaArchivo);
     }
 
-    fs.writeFileSync('./reportesHTML/listadoOperadores.html', html, 'utf8');
-    console.log('Reporte generado: ./reportesHTML/listadoOperadores.html');
+    fs.writeFileSync(rutaArchivo, html, 'utf8');
+    console.log(`Reporte generado: ${rutaArchivo}`);
 }
