@@ -1,4 +1,5 @@
 'use strict';
 
+const app = require('./configs/app.js'); 
 
-console.log ("Servidor corriendo en el puerto 3000");
+app.initServer();
