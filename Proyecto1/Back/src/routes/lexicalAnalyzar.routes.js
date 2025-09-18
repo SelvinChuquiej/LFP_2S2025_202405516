@@ -1,9 +1,10 @@
 'use strict'
 
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const { analizarArchivo } = require('../controller/lexicalAnalyzar.controller');
+
+import { analizarArchivo } from '../controller/lexicalAnalyzar.controller.js';
 
 router.post('/archivo', analizarArchivo);
 
-module.exports = router;
+export const archivoRoutes = router;

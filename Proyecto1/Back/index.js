@@ -1,5 +1,5 @@
 'use strict';
 
-const app = require('./configs/app.js'); 
+import { initServer } from './configs/app.js';
 
-app.initServer();
+initServer();

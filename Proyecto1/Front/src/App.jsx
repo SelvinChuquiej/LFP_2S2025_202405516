@@ -10,15 +10,21 @@ function App() {
     const file = event.target.files[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = async (e) => {
-      setContenido(e.target.result)
-      await fetch('http://localhost:3200/api/archivo', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ contenido: e.target.result }),
-      });
+    reader.onload = (e) => {
+      setContenido(e.target.result);
     };
     reader.readAsText(file);
+  };
+
+  const analizarTorneo = async () => {
+    const respuesta = await fetch('http://localhost:3200/api/archivo', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ contenido }), // contenido es el texto del archivo
+    });
+    const resultado = await respuesta.json();
+    // Aquí puedes mostrar resultado.tokens y resultado.errores en pantalla
+    console.log(resultado);
   };
 
   return (
@@ -29,7 +35,7 @@ function App() {
       </div>
       <div className='cardButtons'>
         <button onClick={() => document.getElementById('fileInput').click()}>Cargar Archivo</button>
-        <button>Analizar Torneo</button>
+        <button onClick={analizarTorneo}>Analizar Torneo</button>
         <button>Generar Reporte</button>
         <button>Mostrar Bracket</button>
       </div>
@@ -38,6 +44,6 @@ function App() {
       </div>
     </>
   )
-}
+};
 
-export default App
+export default App; 
