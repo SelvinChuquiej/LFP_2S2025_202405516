@@ -14,6 +14,7 @@ function App() {
   const [brackets, setBrackets] = useState([]);
   const [estadisticas, setEstadisticas] = useState([]);
   const [goleadores, setGoleadores] = useState([]);
+  const [nombreArchivo, setNombreArchivo] = useState('');
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
@@ -28,6 +29,7 @@ function App() {
       setModoVista('textarea');
     };
     reader.readAsText(file);
+    setNombreArchivo(file.name);
   };
 
   const handleCargarArchivo = () => {
@@ -86,19 +88,22 @@ function App() {
         <h1>TourneyJS - Analizador de Torneos</h1>
       </div>
       <div className='cardButtons'>
-        <button onClick={(handleCargarArchivo)}>Cargar Archivo</button>
-        <button onClick={() => analizarTorneo('tokens')} disabled={!contenido}>Analizar Torneo</button>
-        <button onClick={() => analizarTorneo('errores')} disabled={!contenido}>Analizar Errores</button>
-        <button onClick={() => analizarTorneo('reporte')} disabled={!contenido}>Generar Reporte</button>
-        <button disabled={!contenido}>Mostrar Bracket (Grafico)</button>
+        <div className='botonesGrupo'>
+          <button onClick={(handleCargarArchivo)}>Cargar Archivo</button>
+          <button onClick={() => analizarTorneo('tokens')} disabled={!contenido}>Analizar Torneo</button>
+          <button onClick={() => analizarTorneo('errores')} disabled={!contenido}>Analizar Errores</button>
+          <button onClick={() => analizarTorneo('reporte')} disabled={!contenido}>Generar Reporte</button>
+          <button disabled={!contenido}>Mostrar Bracket (Grafico)</button>
+        </div>
       </div >
+      <h2 className='titulo'> Nombre del archivo: {nombreArchivo ? nombreArchivo : 'Sin archivo cargado'}</h2>
       <div>
         <div>
           {modoVista === 'textarea' && (<textarea value={contenido} className="textArea" placeholder="Contenido del archivo..." readOnly />)}
           {modoVista === 'tokens' && <TablaTokens tokens={tokens} />}
           {modoVista === 'errores' && <TablaErrores errores={errores} />}
           {modoVista === 'reporte' && <Reportes brackets={brackets} estadisticas={estadisticas} goleadores={goleadores} />}
-          
+
         </div>
       </div>
     </>

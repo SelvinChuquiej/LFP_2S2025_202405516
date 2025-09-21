@@ -1,19 +1,25 @@
-.cardTitle{
-  background-color: rgb(69, 48, 110);  
+.cardTitle {
+  background-color: rgb(69, 48, 110);
   height: 100px;
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
-.cardButtons{
+.cardButtons {
   margin-top: 20px;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+}
+
+.botonesGrupo {
+  display: flex;
+  flex-direction: row;
   gap: 20px;
 }
 
-.textArea{
+.textArea {
   width: 90%;
   height: 300px;
   margin-top: 20px;
@@ -23,5 +29,9 @@
   border-radius: 4px;
   resize: vertical;
   background-color: white;
+  color: black;
+}
+
+.titulo {
   color: black;
 }
