@@ -15,6 +15,7 @@ export function analizarArchivo(req, res) {
         tokens: resultado.tokens,
         errores: resultado.errores,
         bracket: resultado.bracket,
-        estadisticas: resultado.estadisticas
+        estadisticas: resultado.estadisticas,
+        goleadores: resultado.listaGoleadores
     });
 }; 

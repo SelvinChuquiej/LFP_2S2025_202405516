@@ -95,7 +95,8 @@ export class Analizador {
         //console.log('BRACKET:', bracket);
         const bracket = generarBracket(this.tokens); // genera el bracket al final
         const estadisticas = calcularEstadisticas(bracket);
-        return { tokens: this.tokens, errores: this.errores, bracket, estadisticas };
+        const listaGoleadores = goleadores(this.tokens);
+        return { tokens: this.tokens, errores: this.errores, bracket, estadisticas, listaGoleadores };
     }
 
     agregarTokenIdent(lexema, inicioColumna) {
@@ -127,7 +128,7 @@ export class Analizador {
     }
 }
 
-export function generarBracket(tokens) {
+function generarBracket(tokens) {
     const fases = ['octavos', 'cuartos', 'semifinal', 'final'];
     let faseActual = '';
     const bracket = [];
@@ -180,6 +181,12 @@ export function generarBracket(tokens) {
 
 function calcularEstadisticas(brackets) {
     const equipos = {};
+    const ordenFases = {
+        'octavos': 1,
+        'cuartos': 2,
+        'semifinal': 3,
+        'final': 4
+    };
 
     brackets.forEach(partido => {
         const [equipoA, equipoB] = partido.partido.split(' vs ');
@@ -239,5 +246,58 @@ function calcularEstadisticas(brackets) {
         equipos[equipoB].faseAlcanzada = partido.fase;
     });
 
-    return Object.values(equipos);
+    const equiposArray = Object.values(equipos);
+    equiposArray.sort((a, b) => ordenFases[b.faseAlcanzada] - ordenFases[a.faseAlcanzada]);
+    return equiposArray;
+}
+
+function goleadores(tokens) {
+    const jugadorEquipo = {}
+    let equipoActual = ''
+
+    for (let i = 0; i < tokens.length; i++) {
+        const token = tokens[i];
+        if (token.tipo === 'RESERVADA' && token.lexema === 'equipo') {
+            equipoActual = tokens[i + 2]?.lexema || '';
+        }
+        if (token.tipo === 'RESERVADA' && token.lexema === 'jugador') {
+            const jugador = tokens[i + 2]?.lexema || '';
+            if (jugador) {
+                jugadorEquipo[jugador] = equipoActual;
+            }
+        }
+    }
+
+    const lista = {};
+    for (let i = 0; i < tokens.length; i++) {
+        const token = tokens[i];
+        if (token.tipo === 'RESERVADA' && token.lexema === 'goleador') {
+            const jugador = tokens[i + 2]?.lexema || '';
+            const equipo = jugadorEquipo[jugador] || '';
+            let minuto = '';
+            for (let j = i; j < tokens.length; j++) {
+                if (tokens[j].tipo === 'ATRIBUTO' && tokens[j].lexema === 'minuto') {
+                    minuto = tokens[j + 2]?.lexema || '';
+                    break;
+                }
+            }
+            
+            if (!lista[jugador]) {
+                lista[jugador] = { equipo, goles: 1, minutos: [minuto] };
+            } else {
+                lista[jugador].goles += 1;
+                lista[jugador].minutos.push(minuto);
+            }
+        }
+    }
+
+    const goleadoresArray = Object.entries(lista).map(([jugador, datos], idx) => ({
+        posicion: idx + 1,
+        jugador,
+        equipo: datos.equipo,
+        goles: datos.goles,
+        minutos: datos.minutos.join(', ')
+    })).sort((a, b) => b.goles - a.goles).map((g, idx) => ({ ...g, posicion: idx + 1 }));
+
+    return goleadoresArray;
 }

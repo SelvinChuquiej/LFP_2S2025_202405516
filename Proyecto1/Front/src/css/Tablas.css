@@ -1,7 +1,8 @@
 .tabla-tokens,
 .tabla-errores,
 .tabla-bracket,
-.tabla-estadisticas {
+.tabla-estadisticas,
+.tabla-goleadores {
     width: 90%;
     border-collapse: collapse;
     font-family: 'Segoe UI', Arial, sans-serif;
@@ -27,7 +28,9 @@
 .tabla-bracket th,
 .tabla-bracket td,
 .tabla-estadisticas th,
-.tabla-estadisticas td {
+.tabla-estadisticas td,
+.tabla-goleadores th,
+.tabla-goleadores td {
     border: 1px solid #ddd;
     padding: 8px;
     text-align: center;
@@ -36,7 +39,8 @@
 .tabla-tokens th,
 .tabla-errores th,
 .tabla-bracket th,
-.tabla-estadisticas th {
+.tabla-estadisticas th,
+.tabla-goleadores th {
     background-color: rgb(69, 48, 110);
     color: #fff;
     font-weight: bold;
@@ -45,13 +49,15 @@
 .tabla-tokens tr:nth-child(even),
 .tabla-errores tr:nth-child(even),
 .tabla-bracket tr:nth-child(even),
-.tabla-estadisticas tr:nth-child(even) {
+.tabla-estadisticas tr:nth-child(even),
+.tabla-goleadores tr:nth-child(even) {
     background-color: #eeeded;
 }
 
 .tabla-tokens tr:hover,
 .tabla-errores tr:hover,
 .tabla-bracket tr:hover,
-.tabla-estadisticas tr:hover {
+.tabla-estadisticas tr:hover,
+.tabla-goleadores tr:hover {
     background-color: #e3f2fd;
 }
