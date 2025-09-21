@@ -38,7 +38,7 @@ export class Analizador {
                     this.inicioColumna = this.columna;
                     continue;
                 }
-                if (char === '"') { 
+                if (char === '"') {
                     this.estado = "CADENA";
                     this.buffer = "";
                     this.inicioColumna = this.columna;
@@ -77,18 +77,27 @@ export class Analizador {
                     this.agregarError(this.buffer, "TOKEN INVALIDO", "Cadena no cerrada");
                     this.estado = "INICIO"
                 } else {
+                    if (char === '\n') {
+                        this.fila++;
+                        this.columna = 1;
+                        this.agregarError(this.buffer, "TOKEN INVALIDO", "Cadena no cerrada", this.inicioColumna);
+                        this.estado = "INICIO"
+                        this.buffer = "";
+                        this.avanzar();
+                        continue;
+                    }
                     this.buffer += this.cadena[this.pos];
                     this.avanzar();
                 }
             }
         }
-        return{ tokens: this.tokens, errores: this.errores };
+        return { tokens: this.tokens, errores: this.errores };
     }
 
     agregarTokenIdent(lexema, inicioColumna) {
         if (RESERVADAS.includes(lexema)) {
             this.tokens.push(new Token(lexema, "RESERVADA", this.fila, inicioColumna));
-        }else if (ATRIBUTOS.includes(lexema)) {
+        } else if (ATRIBUTOS.includes(lexema)) {
             this.tokens.push(new Token(lexema, "ATRIBUTO", this.fila, inicioColumna));
         } else {
             this.agregarError(lexema, "TOKEN INVALIDO", "Identificador no reconocido", inicioColumna);
@@ -97,7 +106,7 @@ export class Analizador {
     }
 
     agregarError(lexema, tipo, descripcion, inicioColumna = this.columna) {
-        this.errores.push({lexema, tipo, descripcion, fila: this.fila, columna: inicioColumna});
+        this.errores.push({ lexema, tipo, descripcion, fila: this.fila, columna: inicioColumna });
     }
 
     esDigito(c) {
