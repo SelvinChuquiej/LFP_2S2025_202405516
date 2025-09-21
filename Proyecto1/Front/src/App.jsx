@@ -12,6 +12,7 @@ function App() {
   const [tokens, setTokens] = useState([]);
   const [errores, setErrores] = useState([]);
   const [brackets, setBrackets] = useState([]);
+  const [estadisticas, setEstadisticas] = useState([]);
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
@@ -48,9 +49,8 @@ function App() {
       setTokens([]);
       setModoVista('errores');
     } else if (tipo === 'reporte') {
-      setErrores([]);
-      setTokens([]);
       setBrackets(resultado.bracket);
+      setEstadisticas(resultado.estadisticas); 
       setModoVista('reporte');
     }
   };
@@ -73,11 +73,11 @@ function App() {
           {modoVista === 'textarea' && (<textarea value={contenido} className="textArea" placeholder="Contenido del archivo..." readOnly />)}
           {modoVista === 'tokens' && <TablaTokens tokens={tokens} />}
           {modoVista === 'errores' && <TablaErrores errores={errores} />}
-          {modoVista === 'reporte' && <Reportes brackets={brackets} />}
+          {modoVista === 'reporte' && <Reportes brackets={brackets} estadisticas={estadisticas} />}
         </div>
       </div>
     </>
   )
 };
 
-export default App; 
+export default App;  

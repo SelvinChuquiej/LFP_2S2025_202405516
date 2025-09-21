@@ -91,10 +91,11 @@ export class Analizador {
                 }
             }
         }
-        console.log('TOKENS:', this.tokens);
+        //console.log('TOKENS:', this.tokens);
+        //console.log('BRACKET:', bracket);
         const bracket = generarBracket(this.tokens); // genera el bracket al final
-        console.log('BRACKET:', bracket);
-        return { tokens: this.tokens, errores: this.errores, bracket };
+        const estadisticas = calcularEstadisticas(bracket);
+        return { tokens: this.tokens, errores: this.errores, bracket, estadisticas };
     }
 
     agregarTokenIdent(lexema, inicioColumna) {
@@ -163,7 +164,7 @@ export function generarBracket(tokens) {
             } else if (golesB > golesA) {
                 partido.ganador = equipoB;
             } else {
-                partido.ganador = 'Empate'; // O alguna otra lógica para empates
+                partido.ganador = 'Empate';
             }
 
             partido.partido = `${equipoA} ` + ATRIBUTOS[ATRIBUTOS.indexOf('vs')] + ` ${equipoB}`;
@@ -174,4 +175,69 @@ export function generarBracket(tokens) {
         i++;
     }
     return bracket;
+}
+
+
+function calcularEstadisticas(brackets) {
+    const equipos = {};
+
+    brackets.forEach(partido => {
+        const [equipoA, equipoB] = partido.partido.split(' vs ');
+        const [golesA, golesB] = partido.resultado.split('-').map(Number);
+
+        // Inicializa equipos si no existen
+        if (!equipos[equipoA]) {
+            equipos[equipoA] = {
+                equipo: equipoA,
+                partidosJugados: 0,
+                ganados: 0,
+                perdidos: 0,
+                golesAFavor: 0,
+                golesEnContra: 0,
+                diferencia: 0,
+                faseAlcanzada: partido.fase
+            };
+        }
+        if (!equipos[equipoB]) {
+            equipos[equipoB] = {
+                equipo: equipoB,
+                partidosJugados: 0,
+                ganados: 0,
+                perdidos: 0,
+                golesAFavor: 0,
+                golesEnContra: 0,
+                diferencia: 0,
+                faseAlcanzada: partido.fase
+            };
+        }
+
+        // Suma partidos jugados
+        equipos[equipoA].partidosJugados += 1;
+        equipos[equipoB].partidosJugados += 1;
+
+        // Suma goles
+        equipos[equipoA].golesAFavor += golesA;
+        equipos[equipoA].golesEnContra += golesB;
+        equipos[equipoB].golesAFavor += golesB;
+        equipos[equipoB].golesEnContra += golesA;
+
+        // Diferencia de goles
+        equipos[equipoA].diferencia = equipos[equipoA].golesAFavor - equipos[equipoA].golesEnContra;
+        equipos[equipoB].diferencia = equipos[equipoB].golesAFavor - equipos[equipoB].golesEnContra;
+
+        // Ganados y perdidos
+        if (golesA > golesB) {
+            equipos[equipoA].ganados += 1;
+            equipos[equipoB].perdidos += 1;
+        } else if (golesB > golesA) {
+            equipos[equipoB].ganados += 1;
+            equipos[equipoA].perdidos += 1;
+        }
+
+        // Fase alcanzada (puedes actualizar según la lógica de tu torneo)
+        equipos[equipoA].faseAlcanzada = partido.fase;
+        equipos[equipoB].faseAlcanzada = partido.fase;
+    });
+
+    return Object.values(equipos);
 }

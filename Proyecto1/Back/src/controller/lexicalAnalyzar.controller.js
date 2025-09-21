@@ -11,5 +11,10 @@ export function analizarArchivo(req, res) {
     const resultado = analizador.analizar();
     //console.log(resultado.errores);
     //console.log(resultado.tokens);
-    return res.json(resultado);
+    return res.json({
+        tokens: resultado.tokens,
+        errores: resultado.errores,
+        bracket: resultado.bracket,
+        estadisticas: resultado.estadisticas
+    });
 }; 

@@ -1,7 +1,7 @@
 import React from 'react';
 import '../css/Tablas.css';
 
-const Reportes = ({ brackets }) => (
+const Reportes = ({ brackets, estadisticas }) => (
     <div className="contenedor-tabla">
         <h2>Reporte Bracket Eliminación:</h2>
         <table className="tabla-bracket">
@@ -26,6 +26,34 @@ const Reportes = ({ brackets }) => (
         </table>
 
         <h2>Reporte Estadisticas por Equipo:</h2>
+        <table className="tabla-estadisticas">
+            <thead>
+                <tr>
+                    <th>Equipo</th>
+                    <th>Partidos Jugados</th>
+                    <th>Ganados</th>
+                    <th>Perdidos</th>
+                    <th>Goles a Favor</th>
+                    <th>Goles en Contra</th>
+                    <th>Diferencia de Goles</th>
+                    <th>Fase Alcanzada</th>
+                </tr>
+            </thead>
+            <tbody>
+                {estadisticas.map((estadistica, idx) => (
+                    <tr key={idx}>
+                        <td>{estadistica.equipo}</td>
+                        <td>{estadistica.partidosJugados}</td>
+                        <td>{estadistica.ganados}</td>
+                        <td>{estadistica.perdidos}</td>
+                        <td>{estadistica.golesAFavor}</td>
+                        <td>{estadistica.golesEnContra}</td>
+                        <td>{estadistica.diferencia}</td>
+                        <td>{estadistica.faseAlcanzada}</td>
+                    </tr>
+                ))}
+            </tbody>
+        </table>
     </div >
 );
 
