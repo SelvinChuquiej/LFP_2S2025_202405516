@@ -94,7 +94,7 @@ export class Analizador {
         //console.log('TOKENS:', this.tokens);
         //console.log('BRACKET:', bracket);
         const bracket = generarBracket(this.tokens); // genera el bracket al final
-        const estadisticas = calcularEstadisticas(bracket);
+        const estadisticas = calcularEstadisticas(bracket, this.tokens);
         const listaGoleadores = goleadores(this.tokens);
         return { tokens: this.tokens, errores: this.errores, bracket, estadisticas, listaGoleadores };
     }
@@ -179,7 +179,7 @@ function generarBracket(tokens) {
 }
 
 
-function calcularEstadisticas(brackets) {
+function calcularEstadisticas(brackets, tokens) {
     const equipos = {};
     const ordenFases = {
         'octavos': 1,
@@ -188,35 +188,28 @@ function calcularEstadisticas(brackets) {
         'final': 4
     };
 
+    for (let i = 0; i < tokens.length; i++) {
+        const token = tokens[i];
+        if (token.tipo === 'RESERVADA' && token.lexema === 'equipo') {
+            const nombreEquipo = tokens[i + 2]?.lexema || '';
+            if (nombreEquipo && !equipos[nombreEquipo]) {
+                equipos[nombreEquipo] = {
+                    equipo: nombreEquipo,
+                    partidosJugados: 0,
+                    ganados: 0,
+                    perdidos: 0,
+                    golesAFavor: 0,
+                    golesEnContra: 0,
+                    diferencia: 0,
+                    faseAlcanzada: 'N/A'
+                };
+            }
+        }
+    }
+
     brackets.forEach(partido => {
         const [equipoA, equipoB] = partido.partido.split(' vs ');
         const [golesA, golesB] = partido.resultado.split('-').map(Number);
-
-        // Inicializa equipos si no existen
-        if (!equipos[equipoA]) {
-            equipos[equipoA] = {
-                equipo: equipoA,
-                partidosJugados: 0,
-                ganados: 0,
-                perdidos: 0,
-                golesAFavor: 0,
-                golesEnContra: 0,
-                diferencia: 0,
-                faseAlcanzada: partido.fase
-            };
-        }
-        if (!equipos[equipoB]) {
-            equipos[equipoB] = {
-                equipo: equipoB,
-                partidosJugados: 0,
-                ganados: 0,
-                perdidos: 0,
-                golesAFavor: 0,
-                golesEnContra: 0,
-                diferencia: 0,
-                faseAlcanzada: partido.fase
-            };
-        }
 
         // Suma partidos jugados
         equipos[equipoA].partidosJugados += 1;
@@ -281,7 +274,7 @@ function goleadores(tokens) {
                     break;
                 }
             }
-            
+
             if (!lista[jugador]) {
                 lista[jugador] = { equipo, goles: 1, minutos: [minuto] };
             } else {
