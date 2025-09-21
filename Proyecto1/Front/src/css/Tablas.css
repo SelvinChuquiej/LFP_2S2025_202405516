@@ -1,4 +1,5 @@
-.tabla-tokens {
+.tabla-tokens,
+.tabla-errores {
     width: 70%;
     border-collapse: collapse;
     margin-top: 20px;
@@ -15,22 +16,27 @@
 }
 
 .tabla-tokens th,
-.tabla-tokens td {
+.tabla-tokens td,
+.tabla-errores th,
+.tabla-errores td {
     border: 1px solid #ddd;
     padding: 8px;
     text-align: center;
 }
 
-.tabla-tokens th {
+.tabla-tokens th,
+.tabla-errores th {
     background-color: rgb(69, 48, 110);
     color: #fff;
     font-weight: bold;
 }
 
-.tabla-tokens tr:nth-child(even) {
+.tabla-tokens tr:nth-child(even),
+.tabla-errores tr:nth-child(even) {
     background-color: #eeeded;
 }
 
-.tabla-tokens tr:hover {
+.tabla-tokens tr:hover,
+.tabla-errores tr:hover {
     background-color: #e3f2fd;
 }
