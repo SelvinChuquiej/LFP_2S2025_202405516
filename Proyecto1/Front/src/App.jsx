@@ -1,10 +1,13 @@
 import './css/App.css'
 import { useState } from 'react';
+import TablaTokens from './components/TablaTokens';
 
 
 function App() {
 
   const [contenido, setContenido] = useState('');
+  const [tokens, setTokens] = useState([]);
+  const [mostrarTextarea, setMostrarTextarea] = useState(true);
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
@@ -12,8 +15,18 @@ function App() {
     const reader = new FileReader();
     reader.onload = (e) => {
       setContenido(e.target.result);
+      setMostrarTextarea(true); // Asegura que el textarea se muestre al cargar archivo
+      setTokens([]); // Limpia la tabla al cargar nuevo archivo
     };
     reader.readAsText(file);
+  };
+
+  const handleCargarArchivo = () => {
+    setTokens([]);
+    setContenido('');
+    setMostrarTextarea(true);
+    document.getElementById('fileInput').value = '';
+    document.getElementById('fileInput').click();
   };
 
   const analizarTorneo = async () => {
@@ -24,7 +37,8 @@ function App() {
     });
     const resultado = await respuesta.json();
     // Aquí puedes mostrar resultado.tokens y resultado.errores en pantalla
-    console.log(resultado);
+    setTokens(resultado.tokens);
+    setMostrarTextarea(false); // Oculta el textarea
   };
 
   return (
@@ -34,13 +48,17 @@ function App() {
         <h1>TourneyJS - Analizador de Torneos</h1>
       </div>
       <div className='cardButtons'>
-        <button onClick={() => document.getElementById('fileInput').click()}>Cargar Archivo</button>
+        <button onClick={handleCargarArchivo}>Cargar Archivo</button>
         <button onClick={analizarTorneo}>Analizar Torneo</button>
         <button>Generar Reporte</button>
         <button>Mostrar Bracket</button>
-      </div>
+      </div >
       <div>
-        <textarea value={contenido} className="textArea" placeholder="Contenido del archivo..." readOnly></textarea>
+        {mostrarTextarea ? (
+          <textarea value={contenido} className="textArea" placeholder="Contenido del archivo..." readOnly></textarea>
+        ) : (
+          tokens.length > 0 && <TablaTokens tokens={tokens} />
+        )}
       </div>
     </>
   )

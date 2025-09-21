@@ -9,8 +9,7 @@ export function analizarArchivo(req, res) {
 
     const analizador = new Analizador(contenido);
     const resultado = analizador.analizar();
+    //console.log(resultado.errores);
     //console.log(resultado.tokens);
-    console.log(resultado.errores);
-    
-    
+    return res.json(resultado);
 }; 
