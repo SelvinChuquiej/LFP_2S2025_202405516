@@ -17,7 +17,6 @@ export const RESERVADAS = [
     "jugador",
     "partido",
     "resultado",
-    "jugador",
     "goleador"
 ];
 
@@ -45,6 +44,7 @@ export const SIMBOLOS = {
     ":": "DOS_PUNTOS",
     ";": "PUNTO_Y_COMA",
     "(": "PARENTESIS_IZQUIERDO",
-    ")": "PARENTESIS_DERECHO"
+    ")": "PARENTESIS_DERECHO",
+    "-": "GUION"
 };
 
