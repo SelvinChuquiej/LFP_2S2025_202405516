@@ -3,6 +3,7 @@ import '../css/Tablas.css';
 
 const TablaTokens = ({ tokens }) => (
     <div className="contenedor-tabla">
+        <h2>Tokens Extraidos:</h2>
         <table className="tabla-errores">
             <thead>
                 <tr>
