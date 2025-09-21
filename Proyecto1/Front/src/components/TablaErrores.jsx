@@ -3,7 +3,7 @@ import '../css/Tablas.css';
 
 const TablaErrores = ({ errores }) => (
     <div className="contenedor-tabla">
-        <h2>Errores Lexicos:</h2>
+        <h2>Errores Lexicos: {errores.length}</h2>
         <table className="tabla-tokens">
             <thead>
                 <tr>
