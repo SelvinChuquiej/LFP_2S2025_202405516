@@ -14,6 +14,7 @@ function App() {
   const [brackets, setBrackets] = useState([]);
   const [estadisticas, setEstadisticas] = useState([]);
   const [goleadores, setGoleadores] = useState([]);
+  const [torneos, setTorneos] = useState([]);
   const [nombreArchivo, setNombreArchivo] = useState('');
 
   const handleFileChange = (event) => {
@@ -71,6 +72,7 @@ function App() {
         setBrackets(resultado.bracket || []);
         setEstadisticas(resultado.estadisticas || []);
         setGoleadores(resultado.goleadores || []);
+        setTorneos(resultado.torneos || []);
         setModoVista('reporte');
       } else {
         alert('Tipo de análisis desconocido.');
@@ -95,15 +97,14 @@ function App() {
           <button onClick={() => analizarTorneo('reporte')} disabled={!contenido}>Generar Reporte</button>
           <button disabled={!contenido}>Mostrar Bracket (Grafico)</button>
         </div>
-      </div >
+      </div>
       <h2 className='titulo'> Nombre del archivo: {nombreArchivo ? nombreArchivo : 'Sin archivo cargado'}</h2>
       <div>
         <div>
           {modoVista === 'textarea' && (<textarea value={contenido} className="textArea" placeholder="Contenido del archivo..." readOnly />)}
           {modoVista === 'tokens' && <TablaTokens tokens={tokens} />}
           {modoVista === 'errores' && <TablaErrores errores={errores} />}
-          {modoVista === 'reporte' && <Reportes brackets={brackets} estadisticas={estadisticas} goleadores={goleadores} />}
-
+          {modoVista === 'reporte' && <Reportes brackets={brackets} estadisticas={estadisticas} goleadores={goleadores} torneos={torneos} />}
         </div>
       </div>
     </>

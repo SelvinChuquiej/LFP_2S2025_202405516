@@ -96,7 +96,8 @@ export class Analizador {
         const bracket = generarBracket(this.tokens); // genera el bracket al final
         const estadisticas = calcularEstadisticas(bracket, this.tokens);
         const listaGoleadores = goleadores(this.tokens);
-        return { tokens: this.tokens, errores: this.errores, bracket, estadisticas, listaGoleadores };
+        const informacionTorneo = infoTorneo(this.tokens, estadisticas, listaGoleadores);
+        return { tokens: this.tokens, errores: this.errores, bracket, estadisticas, listaGoleadores, informacionTorneo };
     }
 
     agregarTokenIdent(lexema, inicioColumna) {
@@ -293,4 +294,44 @@ function goleadores(tokens) {
     })).sort((a, b) => b.goles - a.goles).map((g, idx) => ({ ...g, posicion: idx + 1 }));
 
     return goleadoresArray;
+}
+
+function infoTorneo(tokens, estadisticas, goleadores) {
+    let nombreTorneo = '';
+    let sede = '';
+    let edades = [];
+
+    for (let i = 0; i < tokens.length; i++) {
+        const token = tokens[i];
+        if (token.tipo === 'ATRIBUTO' && token.lexema === 'nombre') {
+            nombreTorneo = tokens[i + 2]?.lexema || '';
+        }
+        if (token.tipo === 'ATRIBUTO' && token.lexema === 'sede') {
+            sede = tokens[i + 2]?.lexema || '';
+        }
+        if (token.tipo === 'ATRIBUTO' && token.lexema === 'edad') {
+            const edad = Number(tokens[i + 2]?.lexema);
+            if (!isNaN(edad) && edad > 0) {
+                edades.push(edad);
+            }
+        }
+    }
+
+    const totalEquipos = estadisticas.length;
+    const totalPartidos = estadisticas.reduce((sum, equipo) => sum + equipo.partidosJugados, 0) / 2;
+    const totalGoles = goleadores.reduce((sum, goleador) => sum + goleador.goles, 0);
+    const promedioGoles = totalPartidos ? (totalGoles / totalPartidos).toFixed(2) : 0;
+    const edadPromedio = edades.length > 0 ? (edades.reduce((a, b) => a + b, 0) / edades.length).toFixed(2) : 'N/A';
+    const faseActual = estadisticas[0]?.faseAlcanzada || 'N/A';
+
+    return [
+        { estadistica: 'Nombre del Torneo', valor: nombreTorneo },
+        { estadistica: 'Sede', valor: sede },
+        { estadistica: 'Total de Equipos', valor: totalEquipos },
+        { estadistica: 'Total de Partidos', valor: totalPartidos },
+        { estadistica: 'Total de Goles', valor: totalGoles },
+        { estadistica: 'Promedio de Goles por Partido', valor: promedioGoles },
+        { estadistica: 'Edad Promedio de Jugadores', valor: edadPromedio + ' años' },
+        { estadistica: 'Fase Actual', valor: faseActual }
+    ];
 }
