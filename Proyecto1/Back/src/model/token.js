@@ -27,6 +27,7 @@ export const ATRIBUTOS = [
     "posicion",
     "numero",
     "edad",
+    "octavos",
     "cuartos",
     "semifinal",
     "final",

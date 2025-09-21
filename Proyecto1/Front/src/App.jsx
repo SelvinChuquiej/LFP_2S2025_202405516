@@ -2,6 +2,7 @@ import './css/App.css'
 import { useState } from 'react';
 import TablaTokens from './components/TablaTokens';
 import TablaErrores from './components/TablaErrores';
+import Reportes from './components/Reportes';
 
 
 function App() {
@@ -10,6 +11,7 @@ function App() {
   const [contenido, setContenido] = useState('');
   const [tokens, setTokens] = useState([]);
   const [errores, setErrores] = useState([]);
+  const [brackets, setBrackets] = useState([]);
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
@@ -45,6 +47,11 @@ function App() {
       setErrores(resultado.errores);
       setTokens([]);
       setModoVista('errores');
+    } else if (tipo === 'reporte') {
+      setErrores([]);
+      setTokens([]);
+      setBrackets(resultado.bracket);
+      setModoVista('reporte');
     }
   };
 
@@ -58,7 +65,7 @@ function App() {
         <button onClick={(handleCargarArchivo)}>Cargar Archivo</button>
         <button onClick={() => analizarTorneo('tokens')}>Analizar Torneo</button>
         <button onClick={() => analizarTorneo('errores')}>Analizar Errores</button>
-        <button>Generar Reporte</button>
+        <button onClick={() => analizarTorneo('reporte')}>Generar Reporte</button>
         <button>Mostrar Bracket</button>
       </div >
       <div>
@@ -66,6 +73,7 @@ function App() {
           {modoVista === 'textarea' && (<textarea value={contenido} className="textArea" placeholder="Contenido del archivo..." readOnly />)}
           {modoVista === 'tokens' && <TablaTokens tokens={tokens} />}
           {modoVista === 'errores' && <TablaErrores errores={errores} />}
+          {modoVista === 'reporte' && <Reportes brackets={brackets} />}
         </div>
       </div>
     </>

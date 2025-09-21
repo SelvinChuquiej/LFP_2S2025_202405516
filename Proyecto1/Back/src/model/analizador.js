@@ -91,7 +91,10 @@ export class Analizador {
                 }
             }
         }
-        return { tokens: this.tokens, errores: this.errores };
+        console.log('TOKENS:', this.tokens);
+        const bracket = generarBracket(this.tokens); // genera el bracket al final
+        console.log('BRACKET:', bracket);
+        return { tokens: this.tokens, errores: this.errores, bracket };
     }
 
     agregarTokenIdent(lexema, inicioColumna) {
@@ -121,5 +124,54 @@ export class Analizador {
         this.pos++;
         this.columna++;
     }
+}
 
+export function generarBracket(tokens) {
+    const fases = ['octavos', 'cuartos', 'semifinal', 'final'];
+    let faseActual = '';
+    const bracket = [];
+    let i = 0;
+
+    while (i < tokens.length) {
+        const token = tokens[i];
+
+        // Detecta la fase actual
+        if (token.tipo === 'ATRIBUTO' && fases.includes(token.lexema)) {
+            faseActual = token.lexema;
+        }
+
+        // Detecta un partido
+        if (token.tipo === 'RESERVADA' && token.lexema === 'partido') {
+            let partido = { fase: faseActual, partido: '', resultado: '', ganador: '' };
+
+            // Busca los equipos
+            let equipoA = tokens[i + 2]?.lexema || '';
+            let equipoB = tokens[i + 4]?.lexema || '';
+
+            // Busca el resultado
+            let resultado = '';
+            for (let j = i; j < tokens.length; j++) {
+                if (tokens[j].tipo === 'RESERVADA' && tokens[j].lexema === 'resultado') {
+                    resultado = tokens[j + 2]?.lexema || '';
+                    break;
+                }
+            }
+
+            const [golesA, golesB] = resultado.split('-').map(Number)
+            if (golesA > golesB) {
+                partido.ganador = equipoA;
+            } else if (golesB > golesA) {
+                partido.ganador = equipoB;
+            } else {
+                partido.ganador = 'Empate'; // O alguna otra lógica para empates
+            }
+
+            partido.partido = `${equipoA} ` + ATRIBUTOS[ATRIBUTOS.indexOf('vs')] + ` ${equipoB}`;
+            partido.resultado = resultado;
+
+            bracket.push(partido);
+        }
+        i++;
+    }
+    return bracket;
 }
