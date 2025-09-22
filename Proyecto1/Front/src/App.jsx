@@ -1,5 +1,6 @@
 import './css/App.css'
 import { useState } from 'react';
+import { Graphviz } from 'graphviz-react';
 import TablaTokens from './components/TablaTokens';
 import TablaErrores from './components/TablaErrores';
 import Reportes from './components/Reportes';
@@ -16,6 +17,8 @@ function App() {
   const [goleadores, setGoleadores] = useState([]);
   const [torneos, setTorneos] = useState([]);
   const [nombreArchivo, setNombreArchivo] = useState('');
+  const [dot, setDot] = useState('');
+  const [reporteListo, setReporteListo] = useState(false);
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
@@ -31,6 +34,7 @@ function App() {
     };
     reader.readAsText(file);
     setNombreArchivo(file.name);
+    setReporteListo(false);
   };
 
   const handleCargarArchivo = () => {
@@ -73,6 +77,8 @@ function App() {
         setEstadisticas(resultado.estadisticas || []);
         setGoleadores(resultado.goleadores || []);
         setTorneos(resultado.torneos || []);
+        setDot(resultado.dot || '');
+        setReporteListo(true);
         setModoVista('reporte');
       } else {
         alert('Tipo de análisis desconocido.');
@@ -95,7 +101,7 @@ function App() {
           <button onClick={() => analizarTorneo('tokens')} disabled={!contenido}>Analizar Torneo</button>
           <button onClick={() => analizarTorneo('errores')} disabled={!contenido}>Analizar Errores</button>
           <button onClick={() => analizarTorneo('reporte')} disabled={!contenido}>Generar Reporte</button>
-          <button disabled={!contenido}>Mostrar Bracket (Grafico)</button>
+          <button onClick={() => setModoVista('grafico')} disabled={!reporteListo}>Mostrar Bracket (Grafico)</button>
         </div>
       </div>
       <h2 className='titulo'> Nombre del archivo: {nombreArchivo ? nombreArchivo : 'Sin archivo cargado'}</h2>
@@ -105,6 +111,7 @@ function App() {
           {modoVista === 'tokens' && <TablaTokens tokens={tokens} />}
           {modoVista === 'errores' && <TablaErrores errores={errores} />}
           {modoVista === 'reporte' && <Reportes brackets={brackets} estadisticas={estadisticas} goleadores={goleadores} torneos={torneos} />}
+          {modoVista === 'grafico' && dot && <Graphviz dot={dot} options={{ width: 800, height: 600 }} />}
         </div>
       </div>
     </>

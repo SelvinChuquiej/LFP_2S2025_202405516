@@ -1,5 +1,6 @@
 'use strict'
 import { Analizador } from '../model/analizador.js';
+import { generarDot } from './graphviz.js';
 
 export function analizarArchivo(req, res) {
     const { contenido } = req.body;
@@ -9,6 +10,13 @@ export function analizarArchivo(req, res) {
 
     const analizador = new Analizador(contenido);
     const resultado = analizador.analizar();
+
+    const nombreTorneo = resultado.informacionTorneo?.find(e => e.estadistica === 'Nombre del Torneo')?.valor || '';
+    const sede = resultado.informacionTorneo?.find(e => e.estadistica === 'Sede')?.valor || '';
+    const fases = resultado.bracket ? [...new Set(resultado.bracket.map(p => p.fase))] : [];
+    const dot = generarDot(nombreTorneo, sede, fases, resultado.bracket);
+
+
     //console.log(resultado.errores);
     //console.log(resultado.tokens);
     return res.json({
@@ -17,6 +25,7 @@ export function analizarArchivo(req, res) {
         bracket: resultado.bracket,
         estadisticas: resultado.estadisticas,
         goleadores: resultado.listaGoleadores,
-        torneos: resultado.informacionTorneo
+        torneos: resultado.informacionTorneo,
+        dot
     });
 }; 
