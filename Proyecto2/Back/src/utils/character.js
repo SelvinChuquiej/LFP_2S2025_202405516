@@ -1,5 +1,5 @@
 export class Character {
-    static isAlpha(char) {
+    static isLetter(char) {
         if (!char) return false;
         const code = char.charCodeAt(0);
         return (code >= 65 && code <= 90) || (code >= 97 && code <= 122); 
