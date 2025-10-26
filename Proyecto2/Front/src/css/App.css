@@ -31,7 +31,7 @@ body,
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.8rem 2rem;
+  padding: 0.8rem 1.5rem;
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
   z-index: 10;
 }
@@ -42,23 +42,23 @@ body,
   letter-spacing: 0.5px;
 }
 
-/* Menú y dropdown */
+/* Menú y dropdown (usado en la navbar) */
 .menu {
   display: flex;
   list-style: none;
-  gap: 2rem;
+  gap: 1.5rem;
   font-weight: 600;
   margin: 0;
   padding: 0;
 }
 
-.menu>li {
+.menu > li {
   position: relative;
   cursor: pointer;
   user-select: none;
 }
 
-.menu>li:hover {
+.menu > li:hover {
   color: #93c5fd;
 }
 
@@ -70,7 +70,7 @@ body,
   list-style: none;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-  padding: 0.5rem 0;
+  padding: 0.4rem 0;
   min-width: 200px;
   animation: fadeIn 0.12s ease-in-out;
 }
@@ -80,13 +80,9 @@ body,
 }
 
 .dropdown li {
-  padding: 0.6rem 1rem;
-  transition: background 0.15s ease;
+  padding: 0.5rem 0.9rem;
+  transition: background 0.12s ease;
   white-space: nowrap;
-}
-
-.dropdown li:hover {
-  background: #f1f5f9;
 }
 
 @keyframes fadeIn {
@@ -94,7 +90,6 @@ body,
     opacity: 0;
     transform: translateY(-5px);
   }
-
   to {
     opacity: 1;
     transform: translateY(0);
@@ -104,8 +99,8 @@ body,
 /* Layout principal */
 .main-layout {
   display: flex;
-  gap: 2rem;
-  padding: 1.5rem;
+  gap: 1.5rem;
+  padding: 1.25rem;
   flex: 1;
   align-items: stretch;
   overflow: hidden;
@@ -117,16 +112,16 @@ body,
   display: flex;
   flex-direction: column;
   background-color: #ffffff;
-  border-radius: 12px;
+  border-radius: 10px;
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.05);
-  padding: 1.5rem;
+  padding: 1.25rem;
   min-width: 300px;
 }
 
 .panel h3 {
   color: var(--text);
-  margin-bottom: 1rem;
-  font-size: 1.1rem;
+  margin-bottom: 0.9rem;
+  font-size: 1.05rem;
   font-weight: 700;
   display: flex;
   align-items: center;
@@ -144,7 +139,7 @@ body,
   background-color: var(--bg);
   color: #0f172a;
   font-family: 'JetBrains Mono', monospace, monospace;
-  font-size: 0.9rem;
+  font-size: 0.92rem;
   line-height: 1.4;
   outline: none;
   transition: border-color 0.15s ease;
@@ -167,57 +162,79 @@ body,
 .btn {
   border: none;
   border-radius: 8px;
-  padding: 0.6rem 1.2rem;
+  padding: 0.56rem 1rem;
   cursor: pointer;
   font-weight: 600;
   font-size: 0.95rem;
-  transition: all 0.15s ease;
+  transition: all 0.12s ease;
 }
 
+/* Variantes de botón usadas */
 .btn-primary {
   background-color: var(--accent);
   color: #fff;
 }
-
-.btn-primary:hover {
-  background-color: #1d4ed8;
-}
+.btn-primary:hover { background-color: #1d4ed8; }
 
 .btn-secondary {
   background-color: #10b981;
   color: #fff;
 }
-
-.btn-secondary:hover {
-  background-color: #059669;
-}
+.btn-secondary:hover { background-color: #059669; }
 
 .btn-save {
   background-color: #f59e0b;
   color: #fff;
 }
-
-.btn-save:hover {
-  background-color: #d97706;
-}
+.btn-save:hover { background-color: #d97706; }
 
 .btn-outline {
   border: 1px solid #475569;
   background: transparent;
   color: #475569;
 }
-
-.btn-outline:hover {
-  background: #e2e8f0;
-}
+.btn-outline:hover { background: #e2e8f0; }
 
 .btn-danger {
   background-color: #ef4444;
   color: #fff;
 }
+.btn-danger:hover { background-color: #dc2626; }
 
-.btn-danger:hover {
-  background-color: #dc2626;
+.btn-error {
+  background: #dc2626;
+  color: #fff;
+}
+.btn-error:hover { background: #b91c1c; }
+
+/* Reporte de tokens / errores */
+.report-section {
+  padding: 1rem;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(2,6,23,0.04);
+  margin: 1.25rem;
+}
+
+.report-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 0.6rem;
+}
+.report-table th,
+.report-table td {
+  text-align: left;
+  padding: 8px;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 0.95rem;
+}
+
+.error-table th,
+.error-table td {
+  text-align: left;
+  padding: 8px;
+  border-bottom: 1px solid #fee2e2;
+  font-size: 0.95rem;
 }
 
 /* Footer */
@@ -228,21 +245,11 @@ body,
   padding: 0.8rem;
   font-size: 0.9rem;
   font-weight: 500;
-  box-shadow: 0 -3px 6px rgba(0, 0, 0, 0.1);
 }
 
 /* Responsive */
 @media (max-width: 1024px) {
-  .main-layout {
-    flex-direction: column;
-    padding: 1rem;
-  }
-
-  .button-group {
-    justify-content: center;
-  }
-
-  .panel {
-    width: 100%;
-  }
+  .main-layout { flex-direction: column; padding: 1rem; }
+  .button-group { justify-content: center; }
+  .panel { width: 100%; }
 }

@@ -1,24 +1,14 @@
 import { useState } from "react";
 import "./css/App.css";
+import MainPanel from "./components/MainPane.jsx";
+import ReporteTokens from "./components/ReporteTokens.jsx";
 
 function App() {
-  const [javaCode, setJavaCode] = useState(`public class MiPrograma {
-    public static void main(String[] args) {
-        int numero = 10;
-        String mensaje = "Hola Mundo";
-        
-        if (numero > 5) {
-            System.out.println(mensaje);
-        }
-        
-        for (int i = 0; i < 3; i++) {
-            System.out.println("Iteración: " + i);
-        }
-    }
-  }`);
-
+  const [javaCode, setJavaCode] = useState("");
   const [pythonCode, setPythonCode] = useState("");
   const [tokens, setTokens] = useState([]);
+  const [errors, setErrors] = useState([]);
+  const [activeView, setActiveView] = useState("editor");
 
   const analyzeTokens = async () => {
     try {
@@ -27,8 +17,14 @@ function App() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ javaCode }),
       });
+
+      if (!resp.ok) {
+        throw new Error(`Error ${resp.status}: ${resp.statusText}`);
+      }
+
       const result = await resp.json();
       setTokens(result.tokens);
+      setErrors(result.errors || []);
     } catch (error) {
       console.error("Error analyzing tokens:", error);
     }
@@ -39,6 +35,7 @@ function App() {
       setJavaCode("");
       setPythonCode("");
       setTokens([]);
+      setErrors([]);
     }
   };
 
@@ -58,29 +55,6 @@ function App() {
     link.click();
   };
 
-  const handleSavePython = () => {
-    if (!pythonCode.trim()) return alert("No hay traducción disponible");
-    const blob = new Blob([pythonCode], { type: "text/plain" });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = "codigo_traducido.py";
-    link.click();
-  };
-
-  const handleViewTokens = () => {
-    if (!tokens.length) return alert("No hay tokens generados.");
-    let html = `<table border="1"><tr><th>#</th><th>Tipo</th><th>Valor</th><th>Línea</th><th>Columna</th></tr>`;
-    tokens.forEach((t, i) => {
-      html += `<tr><td>${i + 1}</td><td>${t.type}</td><td>${t.value}</td><td>${t.line}</td><td>${t.column}</td></tr>`;
-    });
-    html += `</table>`;
-    const blob = new Blob([html], { type: "text/html" });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = "reporte_tokens.html";
-    link.click();
-  };
-
   const handleTranslate = async () => {
     try {
       const resp = await fetch("http://localhost:3200/api/traducir", {
@@ -88,6 +62,7 @@ function App() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ javaCode }),
       });
+
       const result = await resp.json();
       setPythonCode(result.python || "");
     } catch (err) {
@@ -95,10 +70,9 @@ function App() {
       alert("Error al traducir el código.");
     }
   };
-
+  
   return (
     <div className="javabridge-app">
-
       <nav className="navbar">
         <ul className="menu">
           <li>
@@ -110,82 +84,53 @@ function App() {
                 <input id="fileInput" type="file" accept=".java" hidden onChange={handleOpenFile} />
               </li>
               <li onClick={handleSaveJava}>💾 Guardar (.java)</li>
-              <li onClick={handleSavePython}>🐍 Guardar Python</li>
+              <li>🐍 Guardar Python</li>
             </ul>
-
           </li>
-
           <li>
             TRADUCIR ▾
             <ul className="dropdown">
               <li onClick={handleTranslate}>⚙️ Generar Traducción</li>
+              <li onClick={() => setActiveView("reporte")}>📋 Ver Tokens y Errores</li>
               <li onClick={analyzeTokens}>🔍 Analizar Tokens</li>
-              <li onClick={handleViewTokens}>📋 Ver Tokens</li>
+              <li onClick={() => setActiveView("editor")}>🧩 Volver al Editor</li>
             </ul>
           </li>
-
           <li>
             AYUDA ▾
             <ul className="dropdown">
-              <li
-                onClick={() =>
-                  alert("JavaBridge v1.0 — Desarrollado por Steven López, UMG 2025")
-                }
-              >
+              <li onClick={() => alert("JavaBridge v1.0 — Desarrollado por Selvin Raul Chuquiej Andrade")}>
                 ℹ️ Acerca de
               </li>
             </ul>
-          </li> 
+          </li>
         </ul>
         <div className="logo">☕ JavaBridge</div>
       </nav>
 
-      <main className="main-layout">
+      {activeView === "editor" && (
+        <MainPanel
+          javaCode={javaCode}
+          setJavaCode={setJavaCode}
+          pythonCode={pythonCode}
+          setPythonCode={setPythonCode}
+          tokens={tokens}
+          errors={errors}
+          activeView={activeView}
+          handleTranslate={handleTranslate}
+          handleViewTokens={() => setActiveView("reporte")}
+          analyzeTokens={analyzeTokens}
+          clearAll={clearAll}
+        />
+      )}
 
-        <section className="panel">
-          <h3>☕ Código Java</h3>
-          <textarea
-            value={javaCode}
-            onChange={(e) => setJavaCode(e.target.value)}
-            className="code-editor"
-            placeholder="Escribe tu código Java aquí..."
-          />
-          <div className="button-group">
-            <button className="btn btn-primary" onClick={handleTranslate}>
-              ⚙️ Traducir
-            </button>
-            <button className="btn btn-secondary" onClick={analyzeTokens}>
-              🔍 Tokens
-            </button>
-            <button className="btn btn-outline" onClick={handleViewTokens}>
-              📋 Ver Tokens
-            </button>
-            <button className="btn btn-danger" onClick={clearAll}>
-              🗑️ Limpiar
-            </button>
-          </div>
-        </section>
-
-        <section className="panel">
-          <h3>🐍 Código Python Traducido</h3>
-          <textarea
-            value={pythonCode}
-            readOnly
-            className="code-editor"
-            placeholder="Aquí aparecerá el código traducido..."
-          />
-          <div className="button-group">
-            <button className="btn btn-save" onClick={handleSavePython}>
-              💾 Guardar Python
-            </button>
-          </div>
-        </section>
-      </main>
+      {activeView === "reporte" && (
+        <ReporteTokens tokens={tokens} errors={errors} />
+      )}
 
       <footer className="footer">
         <p>
-          © 2025 JavaBridge - Proyecto 2 | Lenguajes Formales y de
-          Programación | Selvin Raúl Chuquiej Andrade
+          © 2025 JavaBridge - Proyecto 2 | Lenguajes Formales y de Programación | Selvin Raúl Chuquiej Andrade
         </p>
       </footer>
     </div>
