@@ -52,10 +52,7 @@ function App() {
       <header className="app-header">
         <div className="header-content">
           <h1 className="app-title">
-            <span className="java-text">Java</span>
-            <span className="bridge-arrow">→</span>
-            <span className="python-text">Python</span>
-            <span className="bridge-text">Bridge</span>
+            <span className="java-text">Java → Python</span>
           </h1>
           <p className="app-subtitle">Traductor de código Java a Python - Proyecto 2 LFP</p>
         </div>

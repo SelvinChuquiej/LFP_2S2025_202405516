@@ -61,21 +61,8 @@ body {
 }
 
 .java-text {
-  color: #f89820;
+  color: #ffffff;
   /* Java orange */
-}
-
-.python-text {
-  color: #3776ab;
-  /* Python blue */
-}
-
-.bridge-arrow {
-  color: #fbbf24;
-}
-
-.bridge-text {
-  color: white;
 }
 
 .app-subtitle {
