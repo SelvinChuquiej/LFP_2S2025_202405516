@@ -1,6 +1,7 @@
 'use strict'
 
 import { Lexer } from '../Lexer/lexer.js';
+import { Parser } from '../Parser/parser.js';
 
 export function analizarLexico(req, res) {
     const { javaCode } = req.body;
@@ -9,7 +10,14 @@ export function analizarLexico(req, res) {
     }
 
     const lexer = new Lexer(javaCode);
-    const lexerResult = lexer.analyze();
+    const {tokens, errors: lexErrors} = lexer.analyze();
 
-    return res.status(200).json({tokens: lexerResult.tokens || [], errors: lexerResult.errors || []});
+    const parser = new Parser(tokens);
+    const {ast, errors: synErrors, success: parseSuccess} = parser.parse();
+
+    return res.status(200).json({
+        tokens: tokens || [],
+        errors: [...(lexErrors || []), ...(synErrors || [])],
+        success: (parseSuccess && lexErrors.length === 0)
+    });
 }

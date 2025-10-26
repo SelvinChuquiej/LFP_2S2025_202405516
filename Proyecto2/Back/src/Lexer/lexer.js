@@ -14,15 +14,14 @@ export class Lexer {
 
     // Método principal: Ejecuta el análisis léxico hasta el final del código
     analyze() {
-        let token;
-        while ((token = this.getNextToken()).type !== "EOF") {
-            if (token) {
-                this.tokens.push(token);
-            }
-        } 
-        return { tokens: this.tokens, errors: this.errors, success: this.errors.length === 0 }; 
+        while (true) {
+            const token = this.getNextToken();
+            if (!token) continue;                 // saltar nulos
+            if (token.type === "EOF") break;
+            this.tokens.push(token);
+        }
+        return { tokens: this.tokens, errors: this.errors, success: this.errors.length === 0 };
     }
-
     // Obtener el siguiente token: Inicia el proceso del AFD
     getNextToken() {
         return this.S0();
