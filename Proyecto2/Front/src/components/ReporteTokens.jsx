@@ -15,7 +15,7 @@ function ReporteTokens({ tokens = [], errors = [] }) {
 
     return (
         <section className="report-section">
-            <h3>📋 Reporte de Tokens</h3>
+            <h3>📋 Reporte de Tokens {`(Total: ${tokens.length})`}</h3>
 
             {tokens.length > 0 ? (
                 <table className="report-table">
@@ -46,7 +46,7 @@ function ReporteTokens({ tokens = [], errors = [] }) {
 
             {lexicalErrors.length > 0 && (
                 <>
-                    <h3 style={{ marginTop: "1rem", color: "#dc2626" }}>❌ Errores Léxicos</h3>
+                    <h3 style={{ marginTop: "1rem", color: "#dc2626" }}>❌ Errores Léxicos {`(Total: ${lexicalErrors.length})`}</h3>
                     <table className="report-table error-table">
                         <thead>
                             <tr>
@@ -74,7 +74,7 @@ function ReporteTokens({ tokens = [], errors = [] }) {
 
             {syntaxErrors.length > 0 && (
                 <>
-                    <h3 style={{ marginTop: "1rem", color: "#ea580c" }}>⚠️ Errores Sintácticos</h3>
+                    <h3 style={{ marginTop: "1rem", color: "#ea580c" }}>⚠️ Errores Sintácticos {`(Total: ${syntaxErrors.length})`}</h3>
                     <table className="report-table error-table">
                         <thead>
                             <tr>

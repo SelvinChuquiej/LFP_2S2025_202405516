@@ -25,7 +25,13 @@ function App() {
       const result = await resp.json();
       setTokens(result.tokens);
       setErrors(result.errors || []);
+      if (result.errors && result.errors.length > 0) {
+        alert("¡Análisis realizado! Se encontraron errores. Revisa el reporte.");
+      } else {
+        alert("¡Análisis realizado correctamente! No se encontraron errores.");
+      }
     } catch (error) {
+      alert("Ocurrió un error al analizar los tokens.");
       console.error("Error analyzing tokens:", error);
     }
   };
@@ -57,20 +63,41 @@ function App() {
 
   const handleTranslate = async () => {
     try {
-      const resp = await fetch("http://localhost:3200/api/traducir", {
+
+      const resp = await fetch("http://localhost:3200/api/traducir-Python", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ javaCode }),
       });
 
       const result = await resp.json();
-      setPythonCode(result.python || "");
+      if (result.success) {
+        setPythonCode(result.pythonCode || "");
+        setErrors([]);
+      } else {
+        alert('Error en la traducción. Revisa el reporte de errores.');
+        setPythonCode("");
+        setErrors(result.errors || []);
+
+      }
     } catch (err) {
-      console.error("Error translating:", err);
-      alert("Error al traducir el código.");
+      console.error("Error en fetch:", err);
+      alert(`Error de conexión: ${err.message}`);
     }
   };
-  
+
+  const handleSavePython = () => {
+    if (!pythonCode) {
+      alert("No hay código Python para guardar.");
+      return;
+    }
+    const blob = new Blob([pythonCode], { type: "text/plain" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "codigo.py";
+    link.click();
+  };
+
   return (
     <div className="javabridge-app">
       <nav className="navbar">
@@ -84,7 +111,7 @@ function App() {
                 <input id="fileInput" type="file" accept=".java" hidden onChange={handleOpenFile} />
               </li>
               <li onClick={handleSaveJava}>💾 Guardar (.java)</li>
-              <li>🐍 Guardar Python</li>
+              <li onClick={handleSavePython}>🐍 Guardar Python</li>
             </ul>
           </li>
           <li>
@@ -121,6 +148,7 @@ function App() {
           handleViewTokens={() => setActiveView("reporte")}
           analyzeTokens={analyzeTokens}
           clearAll={clearAll}
+          handleSavePython={handleSavePython}
         />
       )}
 

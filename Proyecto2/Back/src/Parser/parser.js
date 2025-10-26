@@ -1,8 +1,6 @@
-// parser.js
 import { SyntaxError } from "../models/SyntaxError.js";
 import { ReservedWords as RW, Symbols as SYM } from "../models/token.js";
 
-/* AST helpers */
 const node = (type, props = {}) => ({ type, ...props });
 
 export class Parser {
@@ -12,50 +10,60 @@ export class Parser {
         this.errors = [];
     }
 
-    current() { return this.tokens[this.pos] || { type: "EOF", value: "EOF", line: -1, column: -1 }; }
-    peek(n = 1) { return this.tokens[this.pos + n] || { type: "EOF", value: "EOF", line: -1, column: -1 }; }
-    at(type) { return this.current().type === type; }
-    match(type) { if (this.at(type)) { return this.tokens[this.pos++]; } return null; }
+    //Actual
+    current() {
+        return this.tokens[this.pos] || { type: "EOF", value: "EOF", line: -1, column: -1 };
+    }
 
+    //Siguiente
+    peek(n = 1) {
+        return this.tokens[this.pos + n] || { type: "EOF", value: "EOF", line: -1, column: -1 };
+    }
+
+    //Verifica si el token actual es del tipo dado
+    at(type) {
+        return this.current().type === type;
+    }
+
+    //Si el token actual es del tipo dado, avanza y lo devuelve; si no, devuelve null
+    match(type) {
+        if (this.at(type)) { return this.tokens[this.pos++]; } return null;
+    }
+
+    // Espera un token de cierto tipo, si no lo encuentra reporta error y lanza para sincronizar.
     expect(type, msg) {
         const t = this.current();
         if (t.type !== type) {
             this.report(t, msg || `Se esperaba '${type}'`);
-            throw "sync"; // lanzar para activar sincronización
+            throw "sync"; // Lanza para activar sincronización
         }
         this.pos++;
         return t;
     }
 
+    // Agrega un error sintáctico a la lista.
     report(tok, description) {
         this.errors.push(new SyntaxError(description, tok.line, tok.column, tok.value));
     }
 
+    // Sincroniza el parser tras un error: avanza hasta encontrar ';' o '}'.
     synchronize() {
-        // Avanza hasta ; o } (luego consume si es ;)
         while (!this.at("EOF") && !this.at(SYM[";"]) && !this.at(SYM["}"])) this.pos++;
         if (this.at(SYM[";"])) this.pos++;
     }
 
+    // Método principal: inicia el análisis sintáctico.
     parse() {
         try {
             const program = this.parseProgram();
             return { ast: program, errors: this.errors, success: this.errors.length === 0 };
         } catch (e) {
-            // Solo por si alguna excepción inesperada burbujea
+            // Por si alguna excepción inesperada burbujea
             return { ast: null, errors: this.errors.concat([String(e)]), success: false };
         }
     }
 
-    /* ======== PROGRAMA OBLIGATORIO ========
-  
-     public class ID {
-       public static void main ( String [ ] args ) {
-          // statements*
-       }
-     }
-  
-    */
+    // Analiza el programa completo.
     parseProgram() {
         const root = node("Program", { classDecl: null, main: null });
 
@@ -75,7 +83,7 @@ export class Parser {
 
             this.expect(SYM["}"], "Se esperaba '}' al cerrar la clase");
 
-            // No debe haber más tokens
+            // No debe haber más tokens después de la clase
             if (!this.at("EOF")) {
                 this.report(this.current(), "Contenido extra después de cerrar la clase");
             }
@@ -86,6 +94,7 @@ export class Parser {
         return root;
     }
 
+    // Analiza la declaración del método main obligatorio.
     parseMainMethod() {
         // public static void main ( String [ ] args ) { statements* }
         this.expect(RW["public"], "Se esperaba 'public' para el método main");
@@ -102,6 +111,7 @@ export class Parser {
 
         this.expect(SYM["{"], "Se esperaba '{' para abrir el cuerpo de main");
 
+        // Analiza las sentencias dentro de main
         const body = [];
         while (!this.at("EOF") && !this.at(SYM["}"])) {
             const stmt = this.parseStatement();
@@ -112,22 +122,12 @@ export class Parser {
         return node("MainMethod", { body });
     }
 
-    /* ======== SENTENCIAS ========
-  
-       Declaración: (int|double|char|String|boolean) id (= expr)? ;
-       Asignación : IDENTIFIER = expr ;
-       Print     : System . out . println ( expr ) ;
-       If        : if ( expr ) stmt (else stmt)?
-       While     : while ( expr ) stmt
-       For       : for ( init ; cond ; post ) stmt
-       Bloque    : { statements* }
-  
-    */
+    // Analiza una sentencia.
     parseStatement() {
         try {
             const t = this.current();
 
-            // Bloque
+            // Bloque de sentencias
             if (this.at(SYM["{"])) return this.parseBlock();
 
             // If
@@ -150,7 +150,17 @@ export class Parser {
                 return this.parseAssignment();
             }
 
-            // Vacía / error
+            // ++id;  --id;   (prefijo)
+            if ((t.type === SYM["++"] || t.type === SYM["--"]) && this.peek().type === "IDENTIFIER") {
+                return this.parseIncDecPreStmt();
+            }
+
+            // id++;  id--;   (postfijo)
+            if (t.type === "IDENTIFIER" && (this.peek().type === SYM["++"] || this.peek().type === SYM["--"])) {
+                return this.parseIncDecPostStmt();
+            }
+
+            // Sentencia no reconocida
             this.report(t, "Sentencia no reconocida");
             throw "sync";
         } catch (e) {
@@ -160,6 +170,7 @@ export class Parser {
         }
     }
 
+    // Verifica si el token es un tipo de dato válido.
     isTypeToken(tt) {
         return (
             tt === RW["int"] ||
@@ -170,6 +181,7 @@ export class Parser {
         );
     }
 
+    // Analiza un bloque de sentencias { ... }
     parseBlock() {
         this.expect(SYM["{"], "Se esperaba '{' para abrir bloque");
         const statements = [];
@@ -181,6 +193,7 @@ export class Parser {
         return node("BlockStmt", { statements });
     }
 
+    // Analiza una declaración de variable.
     parseVarDecl() {
         const typeTok = this.current(); this.pos++;
         const id = this.expect("IDENTIFIER", "Se esperaba identificador en la declaración");
@@ -193,6 +206,7 @@ export class Parser {
         return node("VarDecl", { varType: typeTok.type, name: id.value, init });
     }
 
+    // Analiza una asignación simple.
     parseAssignment() {
         const id = this.expect("IDENTIFIER", "Se esperaba identificador para asignación");
         this.expect(SYM["="], "Se esperaba '=' en asignación");
@@ -201,8 +215,8 @@ export class Parser {
         return node("AssignStmt", { name: id.value, expr });
     }
 
+    // Analiza una sentencia de impresión: System.out.println(expr);
     parsePrint() {
-        // System . out . println ( expr ) ;
         this.expect(RW["System"], "Se esperaba 'System'");
         this.expect(SYM["."], "Se esperaba '.'");
         this.expect(RW["out"], "Se esperaba 'out'");
@@ -215,6 +229,7 @@ export class Parser {
         return node("PrintStmt", { expr });
     }
 
+    // Analiza una sentencia if (cond) stmt [else stmt]
     parseIf() {
         this.expect(RW["if"], "Se esperaba 'if'");
         this.expect(SYM["("], "Se esperaba '(' en if");
@@ -228,6 +243,7 @@ export class Parser {
         return node("IfStmt", { cond, thenStmt, elseStmt });
     }
 
+    // Analiza una sentencia while (cond) stmt
     parseWhile() {
         this.expect(RW["while"], "Se esperaba 'while'");
         this.expect(SYM["("], "Se esperaba '(' en while");
@@ -237,15 +253,17 @@ export class Parser {
         return node("WhileStmt", { cond, body });
     }
 
+    // Analiza una sentencia for (init; cond; post) stmt
+    // Transformar for en while + bloque.
     parseFor() {
         this.expect(RW["for"], "Se esperaba 'for'");
         this.expect(SYM["("], "Se esperaba '(' en for");
 
-        // init: puede ser declaración o asignación o ; vacío
+        // init: declaración, asignación o vacío
         let init = null;
         if (!this.at(SYM[";"])) {
             if (this.isTypeToken(this.current().type)) {
-                init = this.parseVarDecl(); // esta ya consume ';'
+                init = this.parseVarDecl(); // ya consume ';'
             } else {
                 init = this.parseAssignment();
             }
@@ -261,14 +279,14 @@ export class Parser {
         // post: puede ser vacío
         let post = null;
         if (!this.at(SYM[")"])) {
-            // soportemos ++/-- o asignación simple como expresión
+            // Soporta ++/-- o asignación simple como expresión
             post = this.parsePostExpr(); // no lleva ';'
         }
         this.expect(SYM[")"], "Se esperaba ')' al cerrar el for");
 
         const body = this.parseStatement();
 
-        // Desazúcar: for(init;cond;post){body} => { init; while(cond){ body; post; } }
+        // Transformar: for(init;cond;post){body} => { init; while(cond){ body; post; } }
         const whileBody = [];
         if (body.type === "BlockStmt") {
             whileBody.push(...body.statements);
@@ -288,8 +306,8 @@ export class Parser {
         });
     }
 
+    // Analiza la parte post del for: IDENT ++ | -- | = expr
     parsePostExpr() {
-        // IDENT ( '++' | '--' ) | asignación (IDENT = expr)
         const id = this.expect("IDENTIFIER", "Se esperaba identificador en la parte post del for");
         const t = this.current().type;
         if (t === SYM["++"] || t === SYM["--"]) {
@@ -305,19 +323,37 @@ export class Parser {
         throw "sync";
     }
 
-    /* ======== EXPRESIONES (Pratt parser) ========
-  
-       Precedencias (mayor → menor):
-         3: * /
-         2: + -
-         1: == != > < >= <=
-    */
+    // Sentencia: IDENTIFIER ++|-- ;
+    parseIncDecPostStmt() {
+        const id = this.expect("IDENTIFIER", "Se esperaba identificador");
+        const op = this.current().type;
+        if (op !== SYM["++"] && op !== SYM["--"]) {
+            this.report(this.current(), "Se esperaba '++' o '--' tras el identificador");
+            throw "sync";
+        }
+        this.pos++; // consume ++/--
+        this.expect(SYM[";"], "Se esperaba ';' al final de la sentencia");
+        return { type: "ExprStmt", expr: { type: "UnaryPostExpr", op, name: id.value } };
+    }
+
+    // Sentencia: ++|-- IDENTIFIER ;
+    parseIncDecPreStmt() {
+        const op = this.current().type; // ++ o --
+        this.pos++; // consume ++/--
+        const id = this.expect("IDENTIFIER", "Se esperaba identificador tras '++' o '--'");
+        this.expect(SYM[";"], "Se esperaba ';' al final de la sentencia");
+        return { type: "ExprStmt", expr: { type: "UnaryPreExpr", op, name: id.value } };
+    }
+
+
+    // Analiza una expresión.
     parseExpression() {
         return this.parsePrecedence(1);
     }
 
+    // Analiza expresiones según precedencia (Pratt parser).    
     parsePrecedence(level) {
-        if (level > 3) return this.parsePrimary();
+        if (level > 3) return this.parseUnary();
 
         let left = this.parsePrecedence(level + 1);
 
@@ -334,6 +370,31 @@ export class Parser {
         return left;
     }
 
+    // Analiza expresiones unarias (prefijo y postfijo).
+    parseUnary() {
+        // prefijo
+        if (this.at(SYM["++"]) || this.at(SYM["--"])) {
+            const op = this.current().type; this.pos++;
+            const id = this.expect("IDENTIFIER", "Se esperaba identificador tras '++/--'");
+            return { type: "UnaryPreExpr", op, name: id.value };
+        }
+
+        // primary
+        let expr = this.parsePrimary();
+
+        // postfijo
+        if (this.at(SYM["++"]) || this.at(SYM["--"])) {
+            const op = this.current().type; this.pos++;
+            if (expr.type !== "Identifier") {
+                this.report(this.current(), "El operador postfijo '++/--' solo aplica a identificadores");
+                throw "sync";
+            }
+            expr = { type: "UnaryPostExpr", op, name: expr.name };
+        }
+
+        return expr;
+    }
+    // Determina si el operador corresponde al nivel de precedencia.
     isOpAtLevel(op, level) {
         if (level === 3) return op === SYM["*"] || op === SYM["/"];
         if (level === 2) return op === SYM["+"] || op === SYM["-"];
@@ -347,6 +408,7 @@ export class Parser {
         return false;
     }
 
+    // Analiza literales, identificadores y expresiones entre paréntesis.
     parsePrimary() {
         const t = this.current();
 
@@ -361,7 +423,7 @@ export class Parser {
         // Identificadores
         if (t.type === "IDENTIFIER") { this.pos++; return node("Identifier", { name: t.value }); }
 
-        // ( expr )
+        // Expresión entre paréntesis
         if (t.type === SYM["("]) {
             this.pos++;
             const expr = this.parseExpression();
