@@ -1,8 +1,7 @@
-import { useState } from 'react';
-import './css/App.css';
+import { useState } from "react";
+import "./css/App.css";
 
 function App() {
-
   const [javaCode, setJavaCode] = useState(`public class MiPrograma {
     public static void main(String[] args) {
         int numero = 10;
@@ -17,225 +16,177 @@ function App() {
         }
     }
   }`);
-  const [pythonCode, setPythonCode] = useState('');
+
+  const [pythonCode, setPythonCode] = useState("");
   const [tokens, setTokens] = useState([]);
-  const [errors, setErrors] = useState([]);
-  const [activeTab, setActiveTab] = useState('python');
 
   const analyzeTokens = async () => {
     try {
-      const resp = await fetch('http://localhost:3200/api/analizar', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ javaCode })
+      const resp = await fetch("http://localhost:3200/api/analizar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ javaCode }),
       });
       const result = await resp.json();
       setTokens(result.tokens);
-      setErrors(result.errors);
-      setActiveTab(result.errors.length > 0 ? 'errors' : 'tokens');
     } catch (error) {
-      console.error('Error analyzing tokens:', error);
+      console.error("Error analyzing tokens:", error);
     }
   };
 
   const clearAll = () => {
-    setJavaCode('');
-    setPythonCode('');
-    setTokens([]);
-    setErrors([]);
-    setActiveTab('python');
+    if (window.confirm("¿Seguro que deseas limpiar el editor?")) {
+      setJavaCode("");
+      setPythonCode("");
+      setTokens([]);
+    }
+  };
+
+  const handleOpenFile = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => setJavaCode(event.target.result);
+    reader.readAsText(file);
+  };
+
+  const handleSaveJava = () => {
+    const blob = new Blob([javaCode], { type: "text/plain" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "codigo.java";
+    link.click();
+  };
+
+  const handleSavePython = () => {
+    if (!pythonCode.trim()) return alert("No hay traducción disponible");
+    const blob = new Blob([pythonCode], { type: "text/plain" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "codigo_traducido.py";
+    link.click();
+  };
+
+  const handleViewTokens = () => {
+    if (!tokens.length) return alert("No hay tokens generados.");
+    let html = `<table border="1"><tr><th>#</th><th>Tipo</th><th>Valor</th><th>Línea</th><th>Columna</th></tr>`;
+    tokens.forEach((t, i) => {
+      html += `<tr><td>${i + 1}</td><td>${t.type}</td><td>${t.value}</td><td>${t.line}</td><td>${t.column}</td></tr>`;
+    });
+    html += `</table>`;
+    const blob = new Blob([html], { type: "text/html" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "reporte_tokens.html";
+    link.click();
+  };
+
+  const handleTranslate = async () => {
+    try {
+      const resp = await fetch("http://localhost:3200/api/traducir", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ javaCode }),
+      });
+      const result = await resp.json();
+      setPythonCode(result.python || "");
+    } catch (err) {
+      console.error("Error translating:", err);
+      alert("Error al traducir el código.");
+    }
   };
 
   return (
     <div className="javabridge-app">
-      {/* Header */}
-      <header className="app-header">
-        <div className="header-content">
-          <h1 className="app-title">
-            <span className="java-text">Java → Python</span>
-          </h1>
-          <p className="app-subtitle">Traductor de código Java a Python - Proyecto 2 LFP</p>
-        </div>
-      </header>
 
-      {/* Main Content */}
-      <main className="main-container">
-        <div className="content-grid">
-          {/* Left Column - Editor */}
-          <div className="editor-column">
-            {/* Java Editor */}
-            <div className="code-panel">
-              <div className="panel-header">
-                <h3 className="panel-title">
-                  <span className="icon">📝</span>
-                  Código Java
-                </h3>
-                <button className="clear-btn" onClick={clearAll}>
-                  🗑️ Limpiar
-                </button>
-              </div>
-              <textarea value={javaCode} onChange={(e) => setJavaCode(e.target.value)} placeholder="Escribe tu código Java aquí..." className="code-editor" spellCheck="false" />
-            </div>
+      <nav className="navbar">
+        <ul className="menu">
+          <li>
+            ARCHIVO ▾
+            <ul className="dropdown">
+              <li onClick={clearAll}>🆕 Nuevo</li>
+              <li>
+                <label htmlFor="fileInput">📂 Abrir (.java)</label>
+                <input id="fileInput" type="file" accept=".java" hidden onChange={handleOpenFile} />
+              </li>
+              <li onClick={handleSaveJava}>💾 Guardar (.java)</li>
+              <li onClick={handleSavePython}>🐍 Guardar Python</li>
+            </ul>
 
-            {/* Action Buttons*/}
-            <div className="action-buttons">
-              {/*}
-              <button onClick={translateJavaToPython} disabled={loading || !javaCode.trim()} className="btn btn-primary">
-                {loading ? (
-                  <>
-                    <span className="spinner"></span>
-                    Traduciendo...
-                  </>
-                ) : (
-                  <>
-                    🚀 Traducir a Python
-                  </>
-                )}
-              </button>*/}
+          </li>
 
-              <button onClick={analyzeTokens} disabled={!javaCode.trim()} className="btn btn-secondary">
-                🔍 Analizar Tokens
-              </button>
-            </div>
-            {/* Results Tabs */}
-            <div className="results-panel">
-              <div className="tabs-header">
-                <button className={`tab-btn ${activeTab === 'python' ? 'active' : ''}`} onClick={() => setActiveTab('python')}>
-                  🐍 Python Traducido
-                </button>
-                <button className={`tab-btn ${activeTab === 'tokens' ? 'active' : ''}`} onClick={() => setActiveTab('tokens')}>
-                  📋 Tokens ({tokens.length})
-                </button>
-                <button className={`tab-btn ${activeTab === 'errors' ? 'active' : ''}`} onClick={() => setActiveTab('errors')}>
-                  {errors.length > 0 ? '❌' : '✅'} Errores ({errors.length})
-                </button>
-              </div>
+          <li>
+            TRADUCIR ▾
+            <ul className="dropdown">
+              <li onClick={handleTranslate}>⚙️ Generar Traducción</li>
+              <li onClick={analyzeTokens}>🔍 Analizar Tokens</li>
+              <li onClick={handleViewTokens}>📋 Ver Tokens</li>
+            </ul>
+          </li>
 
-              <div className="tabs-content">
-                {/* Python Code Tab */}
-                {activeTab === 'python' && (
-                  <div className="tab-panel">
-                    {pythonCode ? (
-                      <pre className="code-output">{pythonCode}</pre>
-                    ) : (
-                      <div className="empty-state">
-                        <div className="empty-icon">🐍</div>
-                        <h4>Esperando traducción</h4>
-                        <p>Presiona "Traducir a Python" para comenzar</p>
-                      </div>
-                    )}
-                  </div>
-                )}
+          <li>
+            AYUDA ▾
+            <ul className="dropdown">
+              <li
+                onClick={() =>
+                  alert("JavaBridge v1.0 — Desarrollado por Steven López, UMG 2025")
+                }
+              >
+                ℹ️ Acerca de
+              </li>
+            </ul>
+          </li> 
+        </ul>
+        <div className="logo">☕ JavaBridge</div>
+      </nav>
 
-                {/* Tokens Tab */}
-                {activeTab === 'tokens' && (
-                  <div className="tab-panel">
-                    {tokens.length > 0 ? (
-                      <div className="tokens-table">
-                        <div className="table-header">
-                          <span>#</span>
-                          <span>Tipo</span>
-                          <span>Valor</span>
-                          <span>Línea</span>
-                          <span>Columna</span>
-                        </div>
-                        <div className="table-body">
-                          {tokens.map((token, index) => (
-                            <div key={index} className="table-row">
-                              <span className="cell index">{index + 1}</span>
-                              <span className="cell type">
-                                <span className="token-badge">{token.type}</span>
-                              </span>
-                              <span className="cell value">"{token.value}"</span>
-                              <span className="cell line">{token.line}</span>
-                              <span className="cell column">{token.column}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="empty-state">
-                        <div className="empty-icon">🔍</div>
-                        <h4>No hay tokens para mostrar</h4>
-                        <p>Presiona "Analizar Tokens" para ver los tokens reconocidos</p>
-                      </div>
-                    )}
-                  </div>
-                )}
+      <main className="main-layout">
 
-                {/* Errors Tab */}
-                {activeTab === 'errors' && (
-                  <div className="tab-panel">
-                    {errors.length > 0 ? (
-                      <div className="errors-list">
-                        {errors.map((error, index) => (
-                          <div key={index} className="error-item">
-                            <div className="error-header">
-                              <span className="error-type">{error.type}</span>
-                              <span className="error-location">
-                                Línea {error.line}, Columna {error.column}
-                              </span>
-                            </div>
-                            <div className="error-message">
-                              {error.description}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="empty-state success">
-                        <div className="empty-icon">✅</div>
-                        <h4>No se encontraron errores</h4>
-                        <p>El código está listo para ser traducido</p>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
+        <section className="panel">
+          <h3>☕ Código Java</h3>
+          <textarea
+            value={javaCode}
+            onChange={(e) => setJavaCode(e.target.value)}
+            className="code-editor"
+            placeholder="Escribe tu código Java aquí..."
+          />
+          <div className="button-group">
+            <button className="btn btn-primary" onClick={handleTranslate}>
+              ⚙️ Traducir
+            </button>
+            <button className="btn btn-secondary" onClick={analyzeTokens}>
+              🔍 Tokens
+            </button>
+            <button className="btn btn-outline" onClick={handleViewTokens}>
+              📋 Ver Tokens
+            </button>
+            <button className="btn btn-danger" onClick={clearAll}>
+              🗑️ Limpiar
+            </button>
           </div>
+        </section>
 
-          {/* Right Column - Stats */}
-          <div className="stats-column">
-            <div className="stats-panel">
-              <div className="stat-card">
-                <div className="stat-icon">📊</div>
-                <div className={`stat-number ${tokens.length > 0 ? 'success' : 'error'}`}>
-                  {tokens.length}
-                </div>
-                <div className="stat-label">Tokens Reconocidos</div>
-              </div>
-
-              <div className="stat-card">
-                <div className="stat-icon">{errors.length > 0 ? '❌' : '✅'}</div>
-                <div className={`stat-number ${errors.length > 0 ? 'error' : 'success'}`}>
-                  {errors.length}
-                </div>
-                <div className="stat-label">Errores Encontrados</div>
-              </div>
-            </div>
-
-            {/* Info Panel */}
-            <div className="info-panel">
-              <h4>💡 Información</h4>
-              <div className="info-content">
-                <p><strong>JavaBridge</strong> convierte código Java básico a Python preservando la semántica.</p>
-                <ul className="features-list">
-                  <li>✅ Análisis léxico con AFD</li>
-                  <li>✅ Parser manual</li>
-                  <li>✅ Traducción Java→Python</li>
-                  <li>✅ Reportes HTML</li>
-                  <li>✅ Interfaz web</li>
-                </ul>
-              </div>
-            </div>
+        <section className="panel">
+          <h3>🐍 Código Python Traducido</h3>
+          <textarea
+            value={pythonCode}
+            readOnly
+            className="code-editor"
+            placeholder="Aquí aparecerá el código traducido..."
+          />
+          <div className="button-group">
+            <button className="btn btn-save" onClick={handleSavePython}>
+              💾 Guardar Python
+            </button>
           </div>
-        </div>
+        </section>
       </main>
 
-      {/* Footer */}
-      <footer className="app-footer">
-        <p>&copy; 2025 JavaBridge - Proyecto 2 Lenguajes Formales y de Programación</p>
+      <footer className="footer">
+        <p>
+          © 2025 JavaBridge - Proyecto 2 | Lenguajes Formales y de
+          Programación | Selvin Raúl Chuquiej Andrade
+        </p>
       </footer>
     </div>
   );
